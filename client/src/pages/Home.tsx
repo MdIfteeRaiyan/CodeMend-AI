@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ArrowRight,
   BookOpen,
@@ -18,10 +18,12 @@ import {
   Menu,
   Play,
   RotateCcw,
+  Share2,
   Sparkles,
   Target,
   Terminal,
   Trophy,
+  Upload,
   WandSparkles,
   X,
   Zap,
@@ -96,6 +98,11 @@ function calculateStreak(days: string[]) {
   return count;
 }
 
+function decodeSharedCode(value: string) {
+  const base64 = value.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(value.length / 4) * 4, "=");
+  return new TextDecoder().decode(Uint8Array.from(atob(base64), (character) => character.charCodeAt(0)));
+}
+
 function CodeLines({ code, errorLine }: { code: string; errorLine?: number | null }) {
   const count = Math.max(code.split("\n").length, 1);
   return (
@@ -163,6 +170,40 @@ function runGuidedCheck(language: Language, code: string): ExecutionResult {
   return finish({ status: "success", stdout: `${output}\n`, stderr: "", line: null, errorType: null, explanation: "The guided structure check passed.", hint: "Connect a secure runner later for full compilation and runtime output." });
 }
 
+function runJavaScriptInWorker(code: string): Promise<ExecutionResult> {
+  const startedAt = performance.now();
+  return new Promise((resolve) => {
+    const workerSource = `
+      self.fetch = undefined; self.XMLHttpRequest = undefined; self.WebSocket = undefined; self.importScripts = undefined;
+      const format = (value) => typeof value === "string" ? value : (() => { try { return JSON.stringify(value); } catch { return String(value); } })();
+      self.onmessage = async (event) => {
+        const output = [];
+        console.log = (...values) => output.push(values.map(format).join(" "));
+        console.info = console.log; console.warn = console.log; console.error = console.log;
+        try {
+          const AsyncFunction = Object.getPrototypeOf(async function(){}).constructor;
+          await new AsyncFunction('"use strict";\\n' + event.data)();
+          self.postMessage({ ok: true, output: output.join("\\n") });
+        } catch (error) {
+          self.postMessage({ ok: false, name: error?.name || "RuntimeError", message: error?.message || String(error), output: output.join("\\n") });
+        }
+      };
+    `;
+    const workerUrl = URL.createObjectURL(new Blob([workerSource], { type: "text/javascript" }));
+    const worker = new Worker(workerUrl);
+    const finish = (result: ExecutionResult) => { worker.terminate(); URL.revokeObjectURL(workerUrl); resolve(result); };
+    const timeout = window.setTimeout(() => finish({ status: "timeout", language: "JavaScript", stdout: "", stderr: "Execution stopped after 1.5 seconds", line: null, errorType: "TimeoutError", explanation: "The program ran for too long, so CodeMend stopped the isolated browser worker.", hint: "Check for an infinite loop or reduce the amount of work.", executionTimeMs: 1500, isDemo: false }), 1500);
+    worker.onmessage = (event: MessageEvent<{ ok: boolean; output: string; name?: string; message?: string }>) => {
+      window.clearTimeout(timeout);
+      const elapsed = Math.max(1, Math.round(performance.now() - startedAt));
+      if (event.data.ok) finish({ status: "success", language: "JavaScript", stdout: event.data.output ? `${event.data.output}\n` : "Program completed with no console output.\n", stderr: "", line: null, errorType: null, explanation: "JavaScript ran inside an isolated browser worker.", hint: "Try another input or practice challenge.", executionTimeMs: elapsed, isDemo: false });
+      else finish({ status: "runtime_error", language: "JavaScript", stdout: event.data.output ? `${event.data.output}\n` : "", stderr: event.data.message ?? "JavaScript runtime error", line: null, errorType: event.data.name ?? "RuntimeError", explanation: "JavaScript started but encountered a runtime error.", hint: "Use the error name and message to inspect the related variable or expression.", executionTimeMs: elapsed, isDemo: false });
+    };
+    worker.onerror = () => { window.clearTimeout(timeout); finish({ status: "runtime_error", language: "JavaScript", stdout: "", stderr: "The browser worker could not run this program.", line: null, errorType: "WorkerError", explanation: "The isolated JavaScript runner could not complete.", hint: "Check the syntax and try again.", executionTimeMs: Math.max(1, Math.round(performance.now() - startedAt)), isDemo: false }); };
+    worker.postMessage(code);
+  });
+}
+
 function AppMark() {
   return (
     <div className="app-mark" aria-label="CodeMend">
@@ -188,6 +229,8 @@ export default function Home() {
   const [completedChallenges, setCompletedChallenges] = useState<string[]>([]);
   const [challengeFilter, setChallengeFilter] = useState<"All" | Language>("All");
   const [copied, setCopied] = useState(false);
+  const [workspaceNotice, setWorkspaceNotice] = useState("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     try {
@@ -197,10 +240,24 @@ export default function Home() {
       if (savedDays) setPracticeDays(JSON.parse(savedDays) as string[]);
       const savedChallenges = window.localStorage.getItem("codemend-completed-challenges");
       if (savedChallenges) setCompletedChallenges(JSON.parse(savedChallenges) as string[]);
+      const shared = new URLSearchParams(window.location.hash.slice(1)).get("code");
+      if (shared) {
+        const payload = JSON.parse(decodeSharedCode(shared)) as { language: Language; code: string };
+        if (languageMeta[payload.language] && typeof payload.code === "string" && payload.code.length <= 20_000) {
+          setLanguage(payload.language); setCode(payload.code); setActiveChallenge(null); setWorkspaceNotice("Shared code loaded");
+        }
+      } else {
+        const draft = window.localStorage.getItem("codemend-draft-Python");
+        if (draft) setCode(draft);
+      }
     } catch {
       // Progress storage is optional; the checker still works in private browsing.
     }
   }, []);
+
+  useEffect(() => {
+    try { window.localStorage.setItem(`codemend-draft-${language}`, code); } catch { /* optional */ }
+  }, [code, language]);
 
   const codeLines = useMemo(() => code.split("\n").length, [code]);
   const activeMeta = languageMeta[language];
@@ -208,7 +265,7 @@ export default function Home() {
   const changeLanguage = (next: Language) => {
     setActiveChallenge(null);
     setLanguage(next);
-    setCode(starterCode[next]);
+    setCode(window.localStorage.getItem(`codemend-draft-${next}`) ?? starterCode[next]);
     setRunState("idle");
     setResult(null);
     setAiExplanation(null);
@@ -218,8 +275,8 @@ export default function Home() {
   const runCode = () => {
     setIsRunning(true);
     setShowAnswer(false);
-    window.setTimeout(() => {
-      const nextResult = runGuidedCheck(language, code);
+    window.setTimeout(async () => {
+      const nextResult = language === "JavaScript" ? await runJavaScriptInWorker(code) : runGuidedCheck(language, code);
       setResult(nextResult);
       setRunState(nextResult.status === "success" ? "fixed" : "error");
       setAiExplanation(nextResult.status === "success" ? null : { whatHappened: nextResult.explanation, hint: nextResult.hint, concept: nextResult.errorType ?? "Debugging" });
@@ -269,6 +326,24 @@ export default function Home() {
     anchor.download = `main.${activeMeta.extension}`;
     anchor.click();
     URL.revokeObjectURL(url);
+  };
+
+  const importCode = async (file: File) => {
+    if (file.size > 20_000) { setWorkspaceNotice("File is too large (20 KB maximum)"); return; }
+    const extension = file.name.split(".").pop()?.toLowerCase();
+    const languageByExtension: Record<string, Language> = { py: "Python", cpp: "C++", cc: "C++", java: "Java", js: "JavaScript", ts: "TypeScript", cs: "C#" };
+    const nextLanguage = extension ? languageByExtension[extension] : undefined;
+    if (!nextLanguage) { setWorkspaceNotice("Unsupported file type"); return; }
+    setLanguage(nextLanguage); setCode(await file.text()); setActiveChallenge(null); setRunState("idle"); setResult(null); setWorkspaceNotice(`${file.name} imported`);
+  };
+
+  const shareCode = async () => {
+    const bytes = new TextEncoder().encode(JSON.stringify({ language, code }));
+    let binary = ""; bytes.forEach((byte) => { binary += String.fromCharCode(byte); });
+    const encoded = btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+    const url = new URL(window.location.href); url.hash = `code=${encoded}`;
+    await navigator.clipboard.writeText(url.toString());
+    setWorkspaceNotice("Share link copied");
   };
 
   const applyFix = () => {
@@ -354,19 +429,22 @@ export default function Home() {
                   <button className="icon-button" onClick={resetCode} type="button" aria-label="Reset code"><RotateCcw size={16} /></button>
                   <button className={copied ? "icon-button copied" : "icon-button"} onClick={copyCode} type="button" aria-label={copied ? "Code copied" : "Copy code"} title={copied ? "Copied!" : "Copy code"}><Copy size={16} /></button>
                   <button className="icon-button" onClick={downloadCode} type="button" aria-label="Download code" title="Download code"><Download size={16} /></button>
+                  <button className="icon-button" onClick={() => fileInputRef.current?.click()} type="button" aria-label="Import code file" title="Import code file"><Upload size={16} /></button>
+                  <input ref={fileInputRef} className="visually-hidden" type="file" accept=".py,.cpp,.cc,.java,.js,.ts,.cs" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importCode(file); event.target.value = ""; }} />
+                  <button className="icon-button" onClick={() => void shareCode()} type="button" aria-label="Copy share link" title="Copy share link"><Share2 size={16} /></button>
                   <button className="run-button" onClick={runCode} type="button" disabled={isRunning}>
                     {isRunning ? <span className="spinner" /> : <Play size={14} fill="currentColor" />}
                     {isRunning ? "Checking" : "Run code"}
                   </button>
                 </div>
               </div>
-              <div className="editor-meta"><span><span className="live-dot" /> Guided check · runs safely in your browser</span><span>{codeLines} lines · {activeMeta.version}</span></div>
+              <div className="editor-meta"><span><span className="live-dot" /> {language === "JavaScript" ? "Live execution · isolated browser worker" : "Guided check · runs safely in your browser"}</span><span>{workspaceNotice || `${codeLines} lines · ${activeMeta.version}`}</span></div>
               <div className="editor-body">
                 <CodeLines code={code} errorLine={runState === "error" ? result?.line : null} />
                 <textarea
                   className="code-input"
                   value={code}
-                  onChange={(event) => { setCode(event.target.value); setRunState("idle"); setShowAnswer(false); }}
+                  onChange={(event) => { setCode(event.target.value); setRunState("idle"); setShowAnswer(false); setWorkspaceNotice(""); }}
                   onKeyDown={(event) => {
                     if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
                       event.preventDefault();
@@ -388,7 +466,7 @@ export default function Home() {
                   </span>
                   <div><span className="result-kicker">Run result</span><h2>{statusLabel}</h2></div>
                 </div>
-                <span className="result-time">{runState === "idle" ? "Waiting for your first check" : `${result?.executionTimeMs ?? 1}ms · guided mode`}</span>
+                <span className="result-time">{runState === "idle" ? "Waiting for your first check" : `${result?.executionTimeMs ?? 1}ms · ${result?.isDemo ? "guided mode" : "live browser run"}`}</span>
               </div>
 
               {runState === "idle" && (
@@ -396,7 +474,7 @@ export default function Home() {
               )}
 
               {runState === "fixed" && (
-                <div className="success-result"><div className="output-label">Expected output</div><pre>{result?.stdout || "Check completed successfully."}</pre><div className="success-note"><Check size={14} /> Your code passed this guided check. Nice debugging.</div></div>
+                <div className="success-result"><div className="output-label">{result?.isDemo ? "Expected output" : "Console output"}</div><pre>{result?.stdout || "Check completed successfully."}</pre><div className="success-note"><Check size={14} /> {result?.isDemo ? "Your code passed this guided check. Nice debugging." : "JavaScript finished in the isolated browser runner."}</div></div>
               )}
 
               {runState === "error" && (
@@ -460,7 +538,7 @@ export default function Home() {
           </aside>
         </section>
 
-        <footer className="page-footer"><div><AppMark /><span className="footer-copy">A guided coding debugger &amp; learning assistant</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">About the method</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
+        <footer className="page-footer"><div><AppMark /><span className="version-badge">v1.4</span><span className="footer-copy">A guided coding debugger &amp; learning assistant</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">About the method</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
       </main>
     </div>
   );

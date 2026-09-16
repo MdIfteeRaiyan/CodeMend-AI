@@ -27,6 +27,7 @@
 }
 
 * { box-sizing: border-box; }
+.visually-hidden { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
 html { scroll-behavior: smooth; }
 body { margin: 0; min-width: 320px; background: var(--background); color: var(--foreground); font-family: var(--font-sans); }
 button, select, textarea { font: inherit; }
@@ -230,6 +231,7 @@ kbd { display: inline-flex; min-width: 20px; height: 19px; align-items: center; 
 .page-footer .app-mark { color: #c4d1c7; font-size: 13px; }
 .page-footer .app-mark-icon { width: 23px; height: 23px; }
 .footer-copy { font-size: 10px; }
+.version-badge { padding: 3px 6px; color: #8fb69b; border: 1px solid rgba(168, 240, 197, .16); border-radius: 5px; font-family: var(--font-mono); font-size: 8px; }
 .footer-links { display: flex; align-items: center; gap: 17px; font-size: 10px; }
 .footer-links a { display: inline-flex; align-items: center; gap: 5px; }
 .footer-links a:hover { color: var(--primary); }
@@ -259,6 +261,7 @@ kbd { display: inline-flex; min-width: 20px; height: 19px; align-items: center; 
   .panel-toolbar { align-items: flex-start; flex-direction: column; gap: 11px; padding: 14px 13px; }
   .toolbar-actions { width: 100%; }
   .toolbar-actions { flex-wrap: wrap; }
+  .toolbar-actions .run-button { flex: 1 0 100%; margin-top: 3px; }
   .language-select-wrap { flex: 1; }
   .language-select-wrap select { width: 100%; }
   .run-button { margin-left: auto; }

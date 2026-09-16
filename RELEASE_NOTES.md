@@ -1,5 +1,13 @@
 # CodeMend release notes
 
+## 1.4.0 — Productive workspace
+
+- Added real JavaScript execution inside a disposable browser worker.
+- Disabled worker network APIs and added a 1.5-second timeout for safer execution.
+- Added automatic per-language draft saving.
+- Added import support for `.py`, `.cpp`, `.cc`, `.java`, `.js`, `.ts`, and `.cs` files.
+- Added shareable code links and retained language-aware source downloads.
+
 ## 1.3.0 — Learning progression
 
 - Expanded the practice lab from six to twelve debugging challenges.
