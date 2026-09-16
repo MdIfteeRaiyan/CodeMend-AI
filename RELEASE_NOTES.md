@@ -1,5 +1,13 @@
 # CodeMend release notes
 
+## 1.5.0 — Brand identity
+
+- Added an original CodeMend logo optimized for browser-tab sizes.
+- Added SVG, favicon, 192px, and 512px brand assets.
+- Added web-app manifest and mobile home-screen metadata.
+- Replaced the generic header icon with the CodeMend mark.
+- Removed development-only public assets from production builds.
+
 ## 1.4.0 — Productive workspace
 
 - Added real JavaScript execution inside a disposable browser worker.

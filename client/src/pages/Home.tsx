@@ -5,7 +5,6 @@ import {
   Check,
   ChevronDown,
   CircleHelp,
-  Code2,
   Command,
   Compass,
   Copy,
@@ -207,7 +206,7 @@ function runJavaScriptInWorker(code: string): Promise<ExecutionResult> {
 function AppMark() {
   return (
     <div className="app-mark" aria-label="CodeMend">
-      <span className="app-mark-icon"><Code2 size={17} strokeWidth={2.5} /></span>
+      <span className="app-mark-icon"><img src="/codemend-mark.svg" alt="" /></span>
       <span>CodeMend</span>
     </div>
   );
@@ -538,7 +537,7 @@ export default function Home() {
           </aside>
         </section>
 
-        <footer className="page-footer"><div><AppMark /><span className="version-badge">v1.4</span><span className="footer-copy">A guided coding debugger &amp; learning assistant</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">About the method</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
+        <footer className="page-footer"><div><AppMark /><span className="version-badge">v1.5</span><span className="footer-copy">A guided coding debugger &amp; learning assistant</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">About the method</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
       </main>
     </div>
   );

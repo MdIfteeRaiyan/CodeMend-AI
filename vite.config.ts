@@ -167,10 +167,7 @@ export default defineConfig(({ mode }) => ({
   },
   envDir: path.resolve(import.meta.dirname),
   root: path.resolve(import.meta.dirname, "client"),
-  publicDir:
-    mode === "development"
-      ? path.resolve(import.meta.dirname, "client", "public")
-      : false,
+  publicDir: path.resolve(import.meta.dirname, "client", "public"),
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,

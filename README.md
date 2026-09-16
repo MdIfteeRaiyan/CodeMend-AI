@@ -6,7 +6,7 @@ CodeMend is a student-first coding workspace designed to help learners understan
 
 > **Core philosophy:** Don't just fix the code. Understand the error. Learn from the mistake.
 
-## Current milestone: V2.5 productive workspace
+## Current milestone: V2.6 brand-ready workspace
 
 The first complete product slice includes:
 
@@ -25,6 +25,7 @@ The first complete product slice includes:
 - Source-code download using the correct language file extension
 - Real JavaScript execution in a network-disabled browser worker with a 1.5-second timeout
 - Automatic per-language drafts, source-file import, and shareable code links
+- Original CodeMend favicon, app mark, install icons, and web-app manifest
 - One-click code copy, reset, and keyboard run shortcut
 - Learner mode copy and analogy card
 - Mobile-first responsive layout
@@ -63,8 +64,9 @@ Arbitrary code execution must stay behind a dedicated sandbox boundary with reso
 - **V2.3 — Multi-language practice:** six languages, six challenges, and a genuine local daily streak. **Complete.**
 - **V2.4 — Learning progression:** twelve challenges, filters, XP, levels, completion progress, and code download. **Complete.**
 - **V2.5 — Productive workspace:** isolated JavaScript execution, drafts, imports, downloads, and share links. **Complete.**
-- **V2.6 — Secure multi-language execution:** connect an isolated runner and parse real compiler/runtime output.
-- **V2.7 — Adaptive learning:** skill paths, richer concepts, difficulty adaptation, and optional accounts.
+- **V2.6 — Brand identity:** consistent header mark, browser favicon, mobile icons, and install metadata. **Complete.**
+- **V2.7 — Secure multi-language execution:** connect an isolated runner and parse real compiler/runtime output.
+- **V2.8 — Adaptive learning:** skill paths, richer concepts, difficulty adaptation, and optional accounts.
 
 ## Local development
 
