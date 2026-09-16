@@ -9,6 +9,7 @@ import {
   Command,
   Compass,
   Copy,
+  Download,
   ExternalLink,
   Github,
   GraduationCap,
@@ -18,6 +19,7 @@ import {
   Play,
   RotateCcw,
   Sparkles,
+  Target,
   Terminal,
   Trophy,
   WandSparkles,
@@ -30,10 +32,12 @@ type Language = "Python" | "C++" | "Java" | "JavaScript" | "TypeScript" | "C#";
 type RunState = "idle" | "error" | "fixed";
 
 type PracticeChallenge = {
+  id: string;
   title: string;
   language: Language;
   level: "Beginner" | "Intermediate";
   minutes: number;
+  xp: number;
   code: string;
 };
 
@@ -49,12 +53,18 @@ const starterCode: Record<Language, string> = {
 };
 
 const challenges: PracticeChallenge[] = [
-  { title: "Close the function call", language: "Python", level: "Beginner", minutes: 3, code: starterCode.Python },
-  { title: "Repair the entry point", language: "C++", level: "Beginner", minutes: 5, code: `#include <iostream>\nusing namespace std;\n\nint start() {\n  cout << "Hello, CodeMend!" << endl;\n  return 0;\n}` },
-  { title: "Balance the class braces", language: "Java", level: "Intermediate", minutes: 6, code: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Keep learning!");\n  }` },
-  { title: "Complete the function", language: "JavaScript", level: "Beginner", minutes: 4, code: `function add(a, b) {\n  return a + b;\n\nconsole.log(add(2, 3));` },
-  { title: "Fix the typed greeting", language: "TypeScript", level: "Intermediate", minutes: 5, code: `function greet(name: string): string {\n  return "Hello, " + name;\n}\n\nconsole.log(greet("Mina"));` },
-  { title: "Repair the Main method", language: "C#", level: "Beginner", minutes: 5, code: `using System;\n\nclass Program {\n  static void Start() {\n    Console.WriteLine("Hello!");\n  }\n}` },
+  { id: "py-paren", title: "Close the function call", language: "Python", level: "Beginner", minutes: 3, xp: 20, code: starterCode.Python },
+  { id: "py-colon", title: "Restore the missing colon", language: "Python", level: "Intermediate", minutes: 4, xp: 30, code: `def is_even(number)\n    if number % 2 == 0:\n        print("Even")\n\nis_even(8)` },
+  { id: "cpp-main", title: "Repair the entry point", language: "C++", level: "Beginner", minutes: 5, xp: 20, code: `#include <iostream>\nusing namespace std;\n\nint start() {\n  cout << "Hello, CodeMend!" << endl;\n  return 0;\n}` },
+  { id: "cpp-brace", title: "Close the main block", language: "C++", level: "Intermediate", minutes: 5, xp: 30, code: `#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Keep going!" << endl;` },
+  { id: "java-brace", title: "Balance the class braces", language: "Java", level: "Intermediate", minutes: 6, xp: 30, code: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Keep learning!");\n  }` },
+  { id: "java-main", title: "Find the missing main", language: "Java", level: "Beginner", minutes: 4, xp: 20, code: `public class Main {\n  public static void start(String[] args) {\n    System.out.println("Hello!");\n  }\n}` },
+  { id: "js-function", title: "Complete the function", language: "JavaScript", level: "Beginner", minutes: 4, xp: 20, code: `function add(a, b) {\n  return a + b;\n\nconsole.log(add(2, 3));` },
+  { id: "js-array", title: "Close the array", language: "JavaScript", level: "Intermediate", minutes: 4, xp: 30, code: `const skills = ["debug", "test", "learn";\nconsole.log(skills);` },
+  { id: "ts-greeting", title: "Fix the typed greeting", language: "TypeScript", level: "Intermediate", minutes: 5, xp: 30, code: `function greet(name: string): string {\n  return "Hello, " + name;\n\nconsole.log(greet("Mina"));` },
+  { id: "ts-object", title: "Balance the user object", language: "TypeScript", level: "Beginner", minutes: 4, xp: 20, code: `const learner: { name: string } = {\n  name: "Mina"\n;\nconsole.log(learner.name);` },
+  { id: "cs-main", title: "Repair the Main method", language: "C#", level: "Beginner", minutes: 5, xp: 20, code: `using System;\n\nclass Program {\n  static void Start() {\n    Console.WriteLine("Hello!");\n  }\n}` },
+  { id: "cs-brace", title: "Close the Program class", language: "C#", level: "Intermediate", minutes: 5, xp: 30, code: `using System;\n\nclass Program {\n  static void Main(string[] args) {\n    Console.WriteLine("Ready");\n  }` },
 ];
 
 const fixedPython = `def greet(name):\n    message = "Hello, " + name\n    print(message)\n\ngreet("Mina")`;
@@ -174,7 +184,9 @@ export default function Home() {
   const [aiExplanation, setAiExplanation] = useState<{ whatHappened: string; hint: string; concept: string } | null>(null);
   const [history, setHistory] = useState<SavedRun[]>([]);
   const [practiceDays, setPracticeDays] = useState<string[]>([]);
-  const [activeChallenge, setActiveChallenge] = useState(0);
+  const [activeChallenge, setActiveChallenge] = useState<number | null>(0);
+  const [completedChallenges, setCompletedChallenges] = useState<string[]>([]);
+  const [challengeFilter, setChallengeFilter] = useState<"All" | Language>("All");
   const [copied, setCopied] = useState(false);
 
   useEffect(() => {
@@ -183,6 +195,8 @@ export default function Home() {
       if (saved) setHistory(JSON.parse(saved) as SavedRun[]);
       const savedDays = window.localStorage.getItem("codemend-practice-days");
       if (savedDays) setPracticeDays(JSON.parse(savedDays) as string[]);
+      const savedChallenges = window.localStorage.getItem("codemend-completed-challenges");
+      if (savedChallenges) setCompletedChallenges(JSON.parse(savedChallenges) as string[]);
     } catch {
       // Progress storage is optional; the checker still works in private browsing.
     }
@@ -192,6 +206,7 @@ export default function Home() {
   const activeMeta = languageMeta[language];
 
   const changeLanguage = (next: Language) => {
+    setActiveChallenge(null);
     setLanguage(next);
     setCode(starterCode[next]);
     setRunState("idle");
@@ -217,9 +232,13 @@ export default function Home() {
       const today = dayKey();
       const nextDays = Array.from(new Set([...practiceDays, today])).slice(-365);
       setPracticeDays(nextDays);
+      const completedId = nextResult.status === "success" && activeChallenge !== null ? challenges[activeChallenge]?.id : null;
+      const nextCompleted = completedId ? Array.from(new Set([...completedChallenges, completedId])) : completedChallenges;
+      setCompletedChallenges(nextCompleted);
       try {
         window.localStorage.setItem("codemend-history", JSON.stringify(nextHistory));
         window.localStorage.setItem("codemend-practice-days", JSON.stringify(nextDays));
+        window.localStorage.setItem("codemend-completed-challenges", JSON.stringify(nextCompleted));
       } catch { /* optional */ }
       setIsRunning(false);
     }, 260);
@@ -242,12 +261,25 @@ export default function Home() {
     window.setTimeout(() => setCopied(false), 1400);
   };
 
+  const downloadCode = () => {
+    const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `main.${activeMeta.extension}`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
   const applyFix = () => {
     setCode(fixedPython);
     setShowAnswer(false);
     setRunState("fixed");
     setResult(runGuidedCheck("Python", fixedPython));
     setAiExplanation(null);
+    const nextCompleted = Array.from(new Set([...completedChallenges, "py-paren"]));
+    setCompletedChallenges(nextCompleted);
+    try { window.localStorage.setItem("codemend-completed-challenges", JSON.stringify(nextCompleted)); } catch { /* optional */ }
   };
 
   const resetCode = () => {
@@ -260,6 +292,10 @@ export default function Home() {
 
   const statusLabel = runState === "error" ? "Needs attention" : runState === "fixed" ? "All clear" : "Ready to run";
   const streak = calculateStreak(practiceDays);
+  const xp = challenges.filter((challenge) => completedChallenges.includes(challenge.id)).reduce((total, challenge) => total + challenge.xp, 0);
+  const level = Math.floor(xp / 100) + 1;
+  const levelProgress = xp % 100;
+  const visibleChallenges = challengeFilter === "All" ? challenges : challenges.filter((challenge) => challenge.language === challengeFilter);
 
   return (
     <div className="codemend-shell">
@@ -278,7 +314,7 @@ export default function Home() {
               <GraduationCap size={16} />
               {learnerMode ? "Learner mode" : "Focus mode"}
             </button>
-            <span className="session-stat hide-mobile"><Trophy size={15} /> {history.filter((item) => item.status === "Passed").length} passed</span>
+            <span className="session-stat hide-mobile"><Trophy size={15} /> Level {level} · {xp} XP</span>
             <button className="mobile-menu-button" type="button" aria-label="Toggle navigation" onClick={() => setMobileNavOpen(!mobileNavOpen)}>
               {mobileNavOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -317,6 +353,7 @@ export default function Home() {
                   </div>
                   <button className="icon-button" onClick={resetCode} type="button" aria-label="Reset code"><RotateCcw size={16} /></button>
                   <button className={copied ? "icon-button copied" : "icon-button"} onClick={copyCode} type="button" aria-label={copied ? "Code copied" : "Copy code"} title={copied ? "Copied!" : "Copy code"}><Copy size={16} /></button>
+                  <button className="icon-button" onClick={downloadCode} type="button" aria-label="Download code" title="Download code"><Download size={16} /></button>
                   <button className="run-button" onClick={runCode} type="button" disabled={isRunning}>
                     {isRunning ? <span className="spinner" /> : <Play size={14} fill="currentColor" />}
                     {isRunning ? "Checking" : "Run code"}
@@ -375,7 +412,7 @@ export default function Home() {
                   </div>
                   <div className="answer-row">
                     <div><strong>Ready to see a suggested fix?</strong><span>Try to solve it yourself first — or reveal the answer when you’re ready.</span></div>
-                    <div className="answer-actions"><button className="ghost-button" type="button" onClick={() => setShowAnswer(false)}>Try myself</button>{language === "Python" && (result?.errorType === "SyntaxError" || result?.errorType === "DelimiterError") && <button className="primary-button" type="button" onClick={() => setShowAnswer(true)}><WandSparkles size={15} /> Show answer</button>}</div>
+                    <div className="answer-actions"><button className="ghost-button" type="button" onClick={() => setShowAnswer(false)}>Try myself</button>{language === "Python" && activeChallenge !== null && challenges[activeChallenge]?.id === "py-paren" && (result?.errorType === "SyntaxError" || result?.errorType === "DelimiterError") && <button className="primary-button" type="button" onClick={() => setShowAnswer(true)}><WandSparkles size={15} /> Show answer</button>}</div>
                   </div>
                   {showAnswer && language === "Python" && <div className="suggested-fix"><div className="fix-heading"><span><Check size={14} /> Suggested fix</span><span className="fix-tag">1 line changed</span></div><div className="diff-line removed"><span>−</span><code>print(message</code></div><div className="diff-line added"><span>+</span><code>print(message)</code></div><button className="apply-button" type="button" onClick={applyFix}>Apply fix and check <ArrowRight size={15} /></button></div>}
                 </div>
@@ -384,6 +421,12 @@ export default function Home() {
           </div>
 
           <aside className="sidebar-column">
+            <div className="panel progress-card">
+              <div className="progress-card-top"><div className="progress-level"><span><Target size={14} /> Learner level</span><strong>Level {level}</strong></div><span className="xp-badge">{xp} XP</span></div>
+              <div className="xp-track" aria-label={`${levelProgress}% progress to next level`}><span style={{ width: `${levelProgress}%` }} /></div>
+              <div className="progress-stats"><span><strong>{completedChallenges.length}</strong> / {challenges.length} challenges</span><span>{100 - levelProgress} XP to level {level + 1}</span></div>
+            </div>
+
             <div className="panel journey-card">
               <div className="card-topline"><div><span className="card-eyebrow">Debug journey</span><h2>Learn as you fix</h2></div><span className="step-count">{runState === "fixed" ? "4 / 4" : runState === "error" ? "2 / 4" : "1 / 4"}</span></div>
               <div className="journey-list">
@@ -398,12 +441,13 @@ export default function Home() {
 
             <div className="panel challenge-card" id="practice">
               <div className="challenge-heading"><div className="practice-icon"><BookOpen size={17} /></div><div><span className="card-eyebrow">Practice lab</span><h3>Choose a bug to mend</h3></div></div>
+              <div className="challenge-filter"><select value={challengeFilter} onChange={(event) => setChallengeFilter(event.target.value as "All" | Language)} aria-label="Filter challenges by language"><option>All</option><option>Python</option><option>C++</option><option>Java</option><option>JavaScript</option><option>TypeScript</option><option>C#</option></select><span>{visibleChallenges.length} challenges</span></div>
               <div className="challenge-list">
-                {challenges.map((challenge, index) => (
-                  <button className={activeChallenge === index ? "challenge-item active" : "challenge-item"} type="button" key={challenge.title} onClick={() => loadChallenge(index)}>
-                    <span><strong>{challenge.title}</strong><small>{challenge.language} · {challenge.minutes} min · {challenge.level}</small></span><ArrowRight size={14} />
-                  </button>
-                ))}
+                {visibleChallenges.map((challenge) => {
+                  const index = challenges.findIndex((item) => item.id === challenge.id);
+                  const isComplete = completedChallenges.includes(challenge.id);
+                  return <button className={activeChallenge === index ? "challenge-item active" : "challenge-item"} type="button" key={challenge.id} onClick={() => loadChallenge(index)}><span><strong>{isComplete && <Check size={11} />} {challenge.title}</strong><small>{challenge.language} · {challenge.minutes} min · {challenge.level} · {challenge.xp} XP</small></span><ArrowRight size={14} /></button>;
+                })}
               </div>
             </div>
 

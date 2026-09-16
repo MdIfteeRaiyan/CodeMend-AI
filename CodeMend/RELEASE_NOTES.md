@@ -1,5 +1,13 @@
 # CodeMend release notes
 
+## 1.3.0 — Learning progression
+
+- Expanded the practice lab from six to twelve debugging challenges.
+- Added per-language challenge filtering and completion indicators.
+- Added XP, learner levels, and next-level progress tracking.
+- Added source-code downloads with the correct language extension.
+- Kept all progress private and available without an account.
+
 ## 1.2.0 — Languages and real streaks
 
 - Added JavaScript, TypeScript, and C# for six supported languages in total.
