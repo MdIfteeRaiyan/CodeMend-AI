@@ -175,6 +175,19 @@ kbd { display: inline-flex; min-width: 20px; height: 19px; align-items: center; 
 .xp-track span { display: block; height: 100%; background: linear-gradient(90deg, #74d99a, #c9f5d8); border-radius: inherit; transition: width 240ms ease-out; }
 .progress-stats { display: flex; justify-content: space-between; gap: 10px; color: #718178; font-size: 9px; }
 .progress-stats strong { color: #bce8ca; }
+.proficiency-card { padding: 16px; }
+.proficiency-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.proficiency-heading .card-eyebrow { margin: 0; }
+.proficiency-heading strong { color: #9eaea4; font-size: 9px; font-weight: 600; }
+.proficiency-list { display: flex; max-height: 240px; overflow-y: auto; flex-direction: column; gap: 3px; padding-right: 3px; scrollbar-color: #3c5145 transparent; scrollbar-width: thin; }
+.proficiency-row { display: grid; grid-template-columns: minmax(72px, 1fr) minmax(54px, .8fr) 57px; align-items: center; gap: 8px; width: 100%; padding: 7px 5px; border: 0; color: #a9b8af; background: transparent; border-radius: 6px; text-align: left; }
+.proficiency-row:hover { background: rgba(168, 240, 197, .05); }
+.proficiency-name { display: flex; align-items: center; gap: 6px; overflow: hidden; font-size: 9px; text-overflow: ellipsis; white-space: nowrap; }
+.proficiency-name i { width: 6px; height: 6px; flex: 0 0 auto; border-radius: 50%; }
+.proficiency-track { height: 3px; overflow: hidden; background: #29362f; border-radius: 999px; }
+.proficiency-track i { display: block; height: 100%; border-radius: inherit; }
+.proficiency-label { color: #67786e; font-size: 8px; text-align: right; }
+.proficiency-label.complete { color: #a8f0c5; }
 .journey-card { padding: 18px; }
 .card-topline { display: flex; align-items: flex-start; justify-content: space-between; gap: 14px; }
 .card-eyebrow { display: block; margin-bottom: 6px; color: #789082; font-size: 9px; }

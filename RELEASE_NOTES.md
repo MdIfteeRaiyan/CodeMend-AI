@@ -1,5 +1,13 @@
 # CodeMend release notes
 
+## 1.6.0 — Languages and proficiency
+
+- Added Go, Rust, and PHP for nine supported language paths.
+- Expanded the practice library from twelve to eighteen challenges.
+- Added per-language Beginner, Developing, and Proficient tracking.
+- Made proficiency rows open the matching language challenge list.
+- Added `.go`, `.rs`, and `.php` imports and downloads.
+
 ## 1.5.0 — Brand identity
 
 - Added an original CodeMend logo optimized for browser-tab sizes.

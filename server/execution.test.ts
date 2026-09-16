@@ -14,7 +14,7 @@ function createContext(): TrpcContext {
 
 describe("execution.run", () => {
   it("accepts every guided language", () => {
-    for (const language of ["Python", "C++", "Java", "JavaScript", "TypeScript", "C#"] as const) {
+    for (const language of ["Python", "C++", "Java", "JavaScript", "TypeScript", "C#", "Go", "Rust", "PHP"] as const) {
       expect(executionRequestSchema.parse({ language, code: "example", stdin: "" }).language).toBe(language);
     }
   });

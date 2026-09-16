@@ -6,11 +6,11 @@ CodeMend is a student-first coding workspace designed to help learners understan
 
 > **Core philosophy:** Don't just fix the code. Understand the error. Learn from the mistake.
 
-## Current milestone: V2.6 brand-ready workspace
+## Current milestone: V2.7 language proficiency
 
 The first complete product slice includes:
 
-- Python, C++, Java, JavaScript, TypeScript, and C# language selection
+- Python, C++, Java, JavaScript, TypeScript, C#, Go, Rust, and PHP selection
 - Balanced bracket, parenthesis, brace, entry-point, and Python block checks
 - Responsive code editor workspace
 - Run-code interaction with clear states
@@ -18,7 +18,7 @@ The first complete product slice includes:
 - Progressive hint before answer reveal
 - Suggested fix and apply-fix journey
 - Debug journey progress tracker
-- Twelve interactive debugging challenges with language filtering
+- Eighteen interactive debugging challenges with language filtering
 - Recent-check history and passed-check count saved locally on the learner's device
 - Real daily practice streak saved locally on the learner's device
 - XP, learner levels, challenge completion, and progress-to-next-level tracking
@@ -26,6 +26,7 @@ The first complete product slice includes:
 - Real JavaScript execution in a network-disabled browser worker with a 1.5-second timeout
 - Automatic per-language drafts, source-file import, and shareable code links
 - Original CodeMend favicon, app mark, install icons, and web-app manifest
+- Per-language proficiency progress with Beginner, Developing, and Proficient states
 - One-click code copy, reset, and keyboard run shortcut
 - Learner mode copy and analogy card
 - Mobile-first responsive layout
@@ -65,8 +66,9 @@ Arbitrary code execution must stay behind a dedicated sandbox boundary with reso
 - **V2.4 — Learning progression:** twelve challenges, filters, XP, levels, completion progress, and code download. **Complete.**
 - **V2.5 — Productive workspace:** isolated JavaScript execution, drafts, imports, downloads, and share links. **Complete.**
 - **V2.6 — Brand identity:** consistent header mark, browser favicon, mobile icons, and install metadata. **Complete.**
-- **V2.7 — Secure multi-language execution:** connect an isolated runner and parse real compiler/runtime output.
-- **V2.8 — Adaptive learning:** skill paths, richer concepts, difficulty adaptation, and optional accounts.
+- **V2.7 — Language proficiency:** nine language paths, eighteen challenges, and per-language mastery. **Complete.**
+- **V2.8 — Secure multi-language execution:** connect an isolated runner and parse real compiler/runtime output.
+- **V2.9 — Adaptive learning:** skill paths, richer concepts, difficulty adaptation, and optional accounts.
 
 ## Local development
 

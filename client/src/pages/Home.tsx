@@ -29,7 +29,7 @@ import {
 } from "lucide-react";
 import type { ExecutionResult } from "@shared/execution";
 
-type Language = "Python" | "C++" | "Java" | "JavaScript" | "TypeScript" | "C#";
+type Language = "Python" | "C++" | "Java" | "JavaScript" | "TypeScript" | "C#" | "Go" | "Rust" | "PHP";
 type RunState = "idle" | "error" | "fixed";
 
 type PracticeChallenge = {
@@ -51,6 +51,9 @@ const starterCode: Record<Language, string> = {
   JavaScript: `function greet(name) {\n  const message = "Hello, " + name;\n  console.log(message);\n}\n\ngreet("Mina");`,
   TypeScript: `function greet(name: string): void {\n  const message: string = "Hello, " + name;\n  console.log(message);\n}\n\ngreet("Mina");`,
   "C#": `using System;\n\nclass Program {\n  static void Main(string[] args) {\n    Console.WriteLine("Hello, CodeMend!");\n  }\n}`,
+  Go: `package main\n\nimport "fmt"\n\nfunc main() {\n  fmt.Println("Hello, CodeMend!")\n}`,
+  Rust: `fn main() {\n    println!("Hello, CodeMend!");\n}`,
+  PHP: `<?php\n\nfunction greet($name) {\n  echo "Hello, " . $name;\n}\n\ngreet("Mina");`,
 };
 
 const challenges: PracticeChallenge[] = [
@@ -66,6 +69,12 @@ const challenges: PracticeChallenge[] = [
   { id: "ts-object", title: "Balance the user object", language: "TypeScript", level: "Beginner", minutes: 4, xp: 20, code: `const learner: { name: string } = {\n  name: "Mina"\n;\nconsole.log(learner.name);` },
   { id: "cs-main", title: "Repair the Main method", language: "C#", level: "Beginner", minutes: 5, xp: 20, code: `using System;\n\nclass Program {\n  static void Start() {\n    Console.WriteLine("Hello!");\n  }\n}` },
   { id: "cs-brace", title: "Close the Program class", language: "C#", level: "Intermediate", minutes: 5, xp: 30, code: `using System;\n\nclass Program {\n  static void Main(string[] args) {\n    Console.WriteLine("Ready");\n  }` },
+  { id: "go-main", title: "Restore the Go entry point", language: "Go", level: "Beginner", minutes: 4, xp: 20, code: `package main\n\nimport "fmt"\n\nfunc start() {\n  fmt.Println("Hello!")\n}` },
+  { id: "go-brace", title: "Close the Go function", language: "Go", level: "Intermediate", minutes: 5, xp: 30, code: `package main\n\nimport "fmt"\n\nfunc main() {\n  fmt.Println("Keep building!")` },
+  { id: "rust-main", title: "Find the Rust main function", language: "Rust", level: "Beginner", minutes: 4, xp: 20, code: `fn start() {\n  println!("Hello!");\n}` },
+  { id: "rust-macro", title: "Close the Rust macro", language: "Rust", level: "Intermediate", minutes: 5, xp: 30, code: `fn main() {\n  println!("Keep learning!";\n}` },
+  { id: "php-function", title: "Complete the PHP function", language: "PHP", level: "Beginner", minutes: 4, xp: 20, code: `<?php\n\nfunction greet($name) {\n  echo "Hello, " . $name;\n\ngreet("Mina");` },
+  { id: "php-array", title: "Balance the PHP array", language: "PHP", level: "Intermediate", minutes: 5, xp: 30, code: `<?php\n\n$skills = ["debug", "test", "learn";\necho count($skills);` },
 ];
 
 const fixedPython = `def greet(name):\n    message = "Hello, " + name\n    print(message)\n\ngreet("Mina")`;
@@ -77,6 +86,9 @@ const languageMeta: Record<Language, { tone: string; version: string; extension:
   JavaScript: { tone: "#f5d76e", version: "ES2023", extension: "js" },
   TypeScript: { tone: "#69a7ff", version: "5.9", extension: "ts" },
   "C#": { tone: "#b38cff", version: ".NET 8", extension: "cs" },
+  Go: { tone: "#63d3e8", version: "1.23", extension: "go" },
+  Rust: { tone: "#e89b72", version: "2024", extension: "rs" },
+  PHP: { tone: "#9ca7ee", version: "8.3", extension: "php" },
 };
 
 function dayKey(date = new Date()) {
@@ -159,13 +171,13 @@ function runGuidedCheck(language: Language, code: string): ExecutionResult {
     return finish({ status: "success", stdout: code.includes("print") ? `Hello, ${greeting}\n` : "Guided check passed.\n", stderr: "", line: null, errorType: null, explanation: "The guided syntax check passed.", hint: "Change the name and run the example again." });
   }
 
-  const requiresEntryPoint = language === "C++" || language === "Java" || language === "C#";
-  const hasEntryPoint = language === "C++" ? /int\s+main\s*\(/i.test(code) : language === "C#" ? /static\s+void\s+Main\s*\(/.test(code) : /static\s+void\s+main\s*\(/.test(code);
+  const requiresEntryPoint = ["C++", "Java", "C#", "Go", "Rust"].includes(language);
+  const hasEntryPoint = language === "C++" ? /int\s+main\s*\(/i.test(code) : language === "C#" ? /static\s+void\s+Main\s*\(/.test(code) : language === "Go" ? /func\s+main\s*\(/.test(code) : language === "Rust" ? /fn\s+main\s*\(/.test(code) : /static\s+void\s+main\s*\(/.test(code);
   if (requiresEntryPoint && !hasEntryPoint) {
-    const hint = language === "C++" ? "Add an int main() function." : language === "C#" ? "Add a static void Main(string[] args) method." : "Add a public static void main(String[] args) method.";
+    const hint = language === "C++" ? "Add an int main() function." : language === "C#" ? "Add a static void Main(string[] args) method." : language === "Go" ? "Add a func main() function." : language === "Rust" ? "Add an fn main() function." : "Add a public static void main(String[] args) method.";
     return finish({ status: "compile_error", stdout: "", stderr: "Program entry point not found", line: 1, errorType: "EntryPointError", explanation: `CodeMend could not find the ${language} program entry point.`, hint });
   }
-  const output = code.match(/(?:cout\s*<<|System\.out\.println\s*\(|Console\.WriteLine\s*\(|console\.log\s*\()[\s]*["']([^"']+)["']/)?.[1] ?? "Guided check passed.";
+  const output = code.match(/(?:cout\s*<<|System\.out\.println\s*\(|Console\.WriteLine\s*\(|console\.log\s*\(|fmt\.Println\s*\(|println!\s*\(|echo\s+)[\s]*["']([^"']+)["']/)?.[1] ?? "Guided check passed.";
   return finish({ status: "success", stdout: `${output}\n`, stderr: "", line: null, errorType: null, explanation: "The guided structure check passed.", hint: "Connect a secure runner later for full compilation and runtime output." });
 }
 
@@ -330,7 +342,7 @@ export default function Home() {
   const importCode = async (file: File) => {
     if (file.size > 20_000) { setWorkspaceNotice("File is too large (20 KB maximum)"); return; }
     const extension = file.name.split(".").pop()?.toLowerCase();
-    const languageByExtension: Record<string, Language> = { py: "Python", cpp: "C++", cc: "C++", java: "Java", js: "JavaScript", ts: "TypeScript", cs: "C#" };
+    const languageByExtension: Record<string, Language> = { py: "Python", cpp: "C++", cc: "C++", java: "Java", js: "JavaScript", ts: "TypeScript", cs: "C#", go: "Go", rs: "Rust", php: "PHP" };
     const nextLanguage = extension ? languageByExtension[extension] : undefined;
     if (!nextLanguage) { setWorkspaceNotice("Unsupported file type"); return; }
     setLanguage(nextLanguage); setCode(await file.text()); setActiveChallenge(null); setRunState("idle"); setResult(null); setWorkspaceNotice(`${file.name} imported`);
@@ -370,6 +382,13 @@ export default function Home() {
   const level = Math.floor(xp / 100) + 1;
   const levelProgress = xp % 100;
   const visibleChallenges = challengeFilter === "All" ? challenges : challenges.filter((challenge) => challenge.language === challengeFilter);
+  const proficiency = (Object.keys(languageMeta) as Language[]).map((item) => {
+    const languageChallenges = challenges.filter((challenge) => challenge.language === item);
+    const completed = languageChallenges.filter((challenge) => completedChallenges.includes(challenge.id)).length;
+    const percent = languageChallenges.length ? Math.round((completed / languageChallenges.length) * 100) : 0;
+    const label = percent === 100 ? "Proficient" : percent > 0 ? "Developing" : "Beginner";
+    return { language: item, completed, total: languageChallenges.length, percent, label, tone: languageMeta[item].tone };
+  });
 
   return (
     <div className="codemend-shell">
@@ -421,7 +440,7 @@ export default function Home() {
                 <div className="toolbar-actions">
                   <div className="language-select-wrap">
                     <select value={language} onChange={(event) => changeLanguage(event.target.value as Language)} aria-label="Choose programming language">
-                      <option>Python</option><option>C++</option><option>Java</option><option>JavaScript</option><option>TypeScript</option><option>C#</option>
+                      <option>Python</option><option>C++</option><option>Java</option><option>JavaScript</option><option>TypeScript</option><option>C#</option><option>Go</option><option>Rust</option><option>PHP</option>
                     </select>
                     <ChevronDown size={14} />
                   </div>
@@ -429,7 +448,7 @@ export default function Home() {
                   <button className={copied ? "icon-button copied" : "icon-button"} onClick={copyCode} type="button" aria-label={copied ? "Code copied" : "Copy code"} title={copied ? "Copied!" : "Copy code"}><Copy size={16} /></button>
                   <button className="icon-button" onClick={downloadCode} type="button" aria-label="Download code" title="Download code"><Download size={16} /></button>
                   <button className="icon-button" onClick={() => fileInputRef.current?.click()} type="button" aria-label="Import code file" title="Import code file"><Upload size={16} /></button>
-                  <input ref={fileInputRef} className="visually-hidden" type="file" accept=".py,.cpp,.cc,.java,.js,.ts,.cs" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importCode(file); event.target.value = ""; }} />
+                  <input ref={fileInputRef} className="visually-hidden" type="file" accept=".py,.cpp,.cc,.java,.js,.ts,.cs,.go,.rs,.php" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importCode(file); event.target.value = ""; }} />
                   <button className="icon-button" onClick={() => void shareCode()} type="button" aria-label="Copy share link" title="Copy share link"><Share2 size={16} /></button>
                   <button className="run-button" onClick={runCode} type="button" disabled={isRunning}>
                     {isRunning ? <span className="spinner" /> : <Play size={14} fill="currentColor" />}
@@ -504,6 +523,13 @@ export default function Home() {
               <div className="progress-stats"><span><strong>{completedChallenges.length}</strong> / {challenges.length} challenges</span><span>{100 - levelProgress} XP to level {level + 1}</span></div>
             </div>
 
+            <div className="panel proficiency-card">
+              <div className="proficiency-heading"><span className="card-eyebrow">Language proficiency</span><strong>9 language paths</strong></div>
+              <div className="proficiency-list">
+                {proficiency.map((item) => <button type="button" className="proficiency-row" key={item.language} onClick={() => { setChallengeFilter(item.language); document.querySelector("#practice")?.scrollIntoView({ behavior: "smooth" }); }}><span className="proficiency-name"><i style={{ background: item.tone }} />{item.language}</span><span className="proficiency-track"><i style={{ width: `${item.percent}%`, background: item.tone }} /></span><span className={`proficiency-label ${item.percent === 100 ? "complete" : ""}`}>{item.label}</span></button>)}
+              </div>
+            </div>
+
             <div className="panel journey-card">
               <div className="card-topline"><div><span className="card-eyebrow">Debug journey</span><h2>Learn as you fix</h2></div><span className="step-count">{runState === "fixed" ? "4 / 4" : runState === "error" ? "2 / 4" : "1 / 4"}</span></div>
               <div className="journey-list">
@@ -518,7 +544,7 @@ export default function Home() {
 
             <div className="panel challenge-card" id="practice">
               <div className="challenge-heading"><div className="practice-icon"><BookOpen size={17} /></div><div><span className="card-eyebrow">Practice lab</span><h3>Choose a bug to mend</h3></div></div>
-              <div className="challenge-filter"><select value={challengeFilter} onChange={(event) => setChallengeFilter(event.target.value as "All" | Language)} aria-label="Filter challenges by language"><option>All</option><option>Python</option><option>C++</option><option>Java</option><option>JavaScript</option><option>TypeScript</option><option>C#</option></select><span>{visibleChallenges.length} challenges</span></div>
+              <div className="challenge-filter"><select value={challengeFilter} onChange={(event) => setChallengeFilter(event.target.value as "All" | Language)} aria-label="Filter challenges by language"><option>All</option><option>Python</option><option>C++</option><option>Java</option><option>JavaScript</option><option>TypeScript</option><option>C#</option><option>Go</option><option>Rust</option><option>PHP</option></select><span>{visibleChallenges.length} challenges</span></div>
               <div className="challenge-list">
                 {visibleChallenges.map((challenge) => {
                   const index = challenges.findIndex((item) => item.id === challenge.id);
@@ -537,7 +563,7 @@ export default function Home() {
           </aside>
         </section>
 
-        <footer className="page-footer"><div><AppMark /><span className="version-badge">v1.5</span><span className="footer-copy">A guided coding debugger &amp; learning assistant</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">About the method</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
+        <footer className="page-footer"><div><AppMark /><span className="version-badge">v1.6</span><span className="footer-copy">A guided coding debugger &amp; learning assistant</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">About the method</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
       </main>
     </div>
   );
