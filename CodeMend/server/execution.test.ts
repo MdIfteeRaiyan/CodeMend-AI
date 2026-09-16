@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { debugExplanationSchema } from "@shared/execution";
+import { debugExplanationSchema, executionRequestSchema } from "@shared/execution";
 import { appRouter } from "./routers";
 import { runInSandbox } from "./services/runner";
 import type { TrpcContext } from "./_core/context";
@@ -13,6 +13,11 @@ function createContext(): TrpcContext {
 }
 
 describe("execution.run", () => {
+  it("accepts every guided language", () => {
+    for (const language of ["Python", "C++", "Java", "JavaScript", "TypeScript", "C#"] as const) {
+      expect(executionRequestSchema.parse({ language, code: "example", stdin: "" }).language).toBe(language);
+    }
+  });
   it("returns a structured compile error for the guided Python example", async () => {
     const caller = appRouter.createCaller(createContext());
     const result = await caller.execution.run({

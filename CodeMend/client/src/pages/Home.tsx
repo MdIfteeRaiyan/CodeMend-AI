@@ -26,7 +26,7 @@ import {
 } from "lucide-react";
 import type { ExecutionResult } from "@shared/execution";
 
-type Language = "Python" | "C++" | "Java";
+type Language = "Python" | "C++" | "Java" | "JavaScript" | "TypeScript" | "C#";
 type RunState = "idle" | "error" | "fixed";
 
 type PracticeChallenge = {
@@ -43,21 +43,48 @@ const starterCode: Record<Language, string> = {
   Python: `def greet(name):\n    message = "Hello, " + name\n    print(message\n\ngreet("Mina")`,
   "C++": `#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Hello, CodeMend!" << endl;\n  return 0;\n}`,
   Java: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, CodeMend!");\n  }\n}`,
+  JavaScript: `function greet(name) {\n  const message = "Hello, " + name;\n  console.log(message);\n}\n\ngreet("Mina");`,
+  TypeScript: `function greet(name: string): void {\n  const message: string = "Hello, " + name;\n  console.log(message);\n}\n\ngreet("Mina");`,
+  "C#": `using System;\n\nclass Program {\n  static void Main(string[] args) {\n    Console.WriteLine("Hello, CodeMend!");\n  }\n}`,
 };
 
 const challenges: PracticeChallenge[] = [
   { title: "Close the function call", language: "Python", level: "Beginner", minutes: 3, code: starterCode.Python },
   { title: "Repair the entry point", language: "C++", level: "Beginner", minutes: 5, code: `#include <iostream>\nusing namespace std;\n\nint start() {\n  cout << "Hello, CodeMend!" << endl;\n  return 0;\n}` },
   { title: "Balance the class braces", language: "Java", level: "Intermediate", minutes: 6, code: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Keep learning!");\n  }` },
+  { title: "Complete the function", language: "JavaScript", level: "Beginner", minutes: 4, code: `function add(a, b) {\n  return a + b;\n\nconsole.log(add(2, 3));` },
+  { title: "Fix the typed greeting", language: "TypeScript", level: "Intermediate", minutes: 5, code: `function greet(name: string): string {\n  return "Hello, " + name;\n}\n\nconsole.log(greet("Mina"));` },
+  { title: "Repair the Main method", language: "C#", level: "Beginner", minutes: 5, code: `using System;\n\nclass Program {\n  static void Start() {\n    Console.WriteLine("Hello!");\n  }\n}` },
 ];
 
 const fixedPython = `def greet(name):\n    message = "Hello, " + name\n    print(message)\n\ngreet("Mina")`;
 
-const languageMeta: Record<Language, { tone: string; version: string }> = {
-  Python: { tone: "#70d6a3", version: "3.12" },
-  "C++": { tone: "#87a8ff", version: "17" },
-  Java: { tone: "#ffb56d", version: "21" },
+const languageMeta: Record<Language, { tone: string; version: string; extension: string }> = {
+  Python: { tone: "#70d6a3", version: "3.12", extension: "py" },
+  "C++": { tone: "#87a8ff", version: "17", extension: "cpp" },
+  Java: { tone: "#ffb56d", version: "21", extension: "java" },
+  JavaScript: { tone: "#f5d76e", version: "ES2023", extension: "js" },
+  TypeScript: { tone: "#69a7ff", version: "5.9", extension: "ts" },
+  "C#": { tone: "#b38cff", version: ".NET 8", extension: "cs" },
 };
+
+function dayKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function calculateStreak(days: string[]) {
+  const unique = new Set(days);
+  const cursor = new Date();
+  let count = 0;
+  while (unique.has(dayKey(cursor))) {
+    count += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return count;
+}
 
 function CodeLines({ code, errorLine }: { code: string; errorLine?: number | null }) {
   const count = Math.max(code.split("\n").length, 1);
@@ -116,11 +143,13 @@ function runGuidedCheck(language: Language, code: string): ExecutionResult {
     return finish({ status: "success", stdout: code.includes("print") ? `Hello, ${greeting}\n` : "Guided check passed.\n", stderr: "", line: null, errorType: null, explanation: "The guided syntax check passed.", hint: "Change the name and run the example again." });
   }
 
-  const hasEntryPoint = language === "C++" ? /int\s+main\s*\(/.test(code) : /static\s+void\s+main\s*\(/.test(code);
-  if (!hasEntryPoint) {
-    return finish({ status: "compile_error", stdout: "", stderr: "Program entry point not found", line: 1, errorType: "EntryPointError", explanation: `CodeMend could not find the ${language} program entry point.`, hint: language === "C++" ? "Add an int main() function." : "Add a public static void main(String[] args) method." });
+  const requiresEntryPoint = language === "C++" || language === "Java" || language === "C#";
+  const hasEntryPoint = language === "C++" ? /int\s+main\s*\(/i.test(code) : language === "C#" ? /static\s+void\s+Main\s*\(/.test(code) : /static\s+void\s+main\s*\(/.test(code);
+  if (requiresEntryPoint && !hasEntryPoint) {
+    const hint = language === "C++" ? "Add an int main() function." : language === "C#" ? "Add a static void Main(string[] args) method." : "Add a public static void main(String[] args) method.";
+    return finish({ status: "compile_error", stdout: "", stderr: "Program entry point not found", line: 1, errorType: "EntryPointError", explanation: `CodeMend could not find the ${language} program entry point.`, hint });
   }
-  const output = code.match(/(?:cout\s*<<|System\.out\.println\s*\()[\s]*["']([^"']+)["']/)?.[1] ?? "Guided check passed.";
+  const output = code.match(/(?:cout\s*<<|System\.out\.println\s*\(|Console\.WriteLine\s*\(|console\.log\s*\()[\s]*["']([^"']+)["']/)?.[1] ?? "Guided check passed.";
   return finish({ status: "success", stdout: `${output}\n`, stderr: "", line: null, errorType: null, explanation: "The guided structure check passed.", hint: "Connect a secure runner later for full compilation and runtime output." });
 }
 
@@ -144,6 +173,7 @@ export default function Home() {
   const [result, setResult] = useState<ExecutionResult | null>(null);
   const [aiExplanation, setAiExplanation] = useState<{ whatHappened: string; hint: string; concept: string } | null>(null);
   const [history, setHistory] = useState<SavedRun[]>([]);
+  const [practiceDays, setPracticeDays] = useState<string[]>([]);
   const [activeChallenge, setActiveChallenge] = useState(0);
   const [copied, setCopied] = useState(false);
 
@@ -151,6 +181,8 @@ export default function Home() {
     try {
       const saved = window.localStorage.getItem("codemend-history");
       if (saved) setHistory(JSON.parse(saved) as SavedRun[]);
+      const savedDays = window.localStorage.getItem("codemend-practice-days");
+      if (savedDays) setPracticeDays(JSON.parse(savedDays) as string[]);
     } catch {
       // Progress storage is optional; the checker still works in private browsing.
     }
@@ -182,7 +214,13 @@ export default function Home() {
         ...history,
       ].slice(0, 6);
       setHistory(nextHistory);
-      try { window.localStorage.setItem("codemend-history", JSON.stringify(nextHistory)); } catch { /* optional */ }
+      const today = dayKey();
+      const nextDays = Array.from(new Set([...practiceDays, today])).slice(-365);
+      setPracticeDays(nextDays);
+      try {
+        window.localStorage.setItem("codemend-history", JSON.stringify(nextHistory));
+        window.localStorage.setItem("codemend-practice-days", JSON.stringify(nextDays));
+      } catch { /* optional */ }
       setIsRunning(false);
     }, 260);
   };
@@ -221,6 +259,7 @@ export default function Home() {
   };
 
   const statusLabel = runState === "error" ? "Needs attention" : runState === "fixed" ? "All clear" : "Ready to run";
+  const streak = calculateStreak(practiceDays);
 
   return (
     <div className="codemend-shell">
@@ -257,7 +296,7 @@ export default function Home() {
           <div className="hero-aside">
             <div className="streak-card">
               <div className="streak-icon"><Zap size={16} fill="currentColor" /></div>
-              <div><strong>{history.length} recent checks</strong><span>Saved on this device</span></div>
+              <div><strong>{streak} day streak</strong><span>{streak ? "Practice again tomorrow" : "Run a check to begin"}</span></div>
               <ArrowRight size={16} className="muted-arrow" />
             </div>
             <div className="command-hint"><Command size={13} /> Press <kbd>Ctrl/⌘</kbd><kbd>Enter</kbd> to check</div>
@@ -268,11 +307,11 @@ export default function Home() {
           <div className="editor-column">
             <div className="panel editor-panel">
               <div className="panel-toolbar">
-                <div className="file-tab"><span className="file-dot" style={{ background: activeMeta.tone }} /> main.{language === "Python" ? "py" : language === "C++" ? "cpp" : "java"}</div>
+                <div className="file-tab"><span className="file-dot" style={{ background: activeMeta.tone }} /> main.{activeMeta.extension}</div>
                 <div className="toolbar-actions">
                   <div className="language-select-wrap">
                     <select value={language} onChange={(event) => changeLanguage(event.target.value as Language)} aria-label="Choose programming language">
-                      <option>Python</option><option>C++</option><option>Java</option>
+                      <option>Python</option><option>C++</option><option>Java</option><option>JavaScript</option><option>TypeScript</option><option>C#</option>
                     </select>
                     <ChevronDown size={14} />
                   </div>

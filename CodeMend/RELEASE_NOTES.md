@@ -1,5 +1,12 @@
 # CodeMend release notes
 
+## 1.2.0 — Languages and real streaks
+
+- Added JavaScript, TypeScript, and C# for six supported languages in total.
+- Expanded the practice lab from three to six selectable debugging challenges.
+- Replaced the decorative streak with a real daily streak stored in the browser.
+- Kept CodeMend guest-first: no account is required until cloud sync becomes useful.
+
 ## 1.1.0 — Guided practice upgrade
 
 - Added three selectable Python, C++, and Java debugging challenges.

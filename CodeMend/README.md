@@ -6,11 +6,11 @@ CodeMend is a student-first coding workspace designed to help learners understan
 
 > **Core philosophy:** Don't just fix the code. Understand the error. Learn from the mistake.
 
-## Current milestone: V2.2 guided practice
+## Current milestone: V2.3 multi-language practice
 
 The first complete product slice includes:
 
-- Python, C++, and Java language selection
+- Python, C++, Java, JavaScript, TypeScript, and C# language selection
 - Balanced bracket, parenthesis, brace, entry-point, and Python block checks
 - Responsive code editor workspace
 - Run-code interaction with clear states
@@ -18,8 +18,9 @@ The first complete product slice includes:
 - Progressive hint before answer reveal
 - Suggested fix and apply-fix journey
 - Debug journey progress tracker
-- Three interactive debugging challenges
+- Six interactive debugging challenges
 - Recent-check history and passed-check count saved locally on the learner's device
+- Real daily practice streak saved locally on the learner's device
 - One-click code copy, reset, and keyboard run shortcut
 - Learner mode copy and analogy card
 - Mobile-first responsive layout
@@ -55,8 +56,9 @@ Arbitrary code execution must stay behind a dedicated sandbox boundary with reso
 
 - **V2.1 — Workspace foundation:** editor, run flow, result states, responsive UI. **Complete.**
 - **V2.2 — Guided practice:** local error patterns, challenges, progress history, copy/reset shortcuts. **Complete.**
-- **V2.3 — Secure execution:** connect an isolated runner and parse real compiler/runtime output.
-- **V2.4 — Adaptive learning:** larger challenge library, concepts, difficulty, and optional accounts.
+- **V2.3 — Multi-language practice:** six languages, six challenges, and a genuine local daily streak. **Complete.**
+- **V2.4 — Secure execution:** connect an isolated runner and parse real compiler/runtime output.
+- **V2.5 — Adaptive learning:** larger challenge library, concepts, difficulty, and optional accounts.
 
 ## Local development
 
