@@ -230,7 +230,6 @@ kbd { display: inline-flex; min-width: 20px; height: 19px; align-items: center; 
 .page-footer .app-mark { color: #c4d1c7; font-size: 13px; }
 .page-footer .app-mark-icon { width: 23px; height: 23px; }
 .footer-copy { font-size: 10px; }
-.version-badge { padding: 3px 6px; color: #8fb69b; border: 1px solid rgba(168, 240, 197, .16); border-radius: 5px; font-family: var(--font-mono); font-size: 8px; }
 .footer-links { display: flex; align-items: center; gap: 17px; font-size: 10px; }
 .footer-links a { display: inline-flex; align-items: center; gap: 5px; }
 .footer-links a:hover { color: var(--primary); }
