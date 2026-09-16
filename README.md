@@ -1,27 +1,34 @@
 # CodeMend
 
-**AI Coding Debugger & Learning Assistant**
+**Guided Coding Debugger & Learning Assistant**
 
 CodeMend is a student-first coding workspace designed to help learners understand programming mistakes instead of hiding them. It combines a focused editor, error explanations, progressive hints, suggested fixes, and a short feedback loop that ends with proving the fix works.
 
 > **Core philosophy:** Don't just fix the code. Understand the error. Learn from the mistake.
 
-## Current milestone: V2.1 foundation
+## Current milestone: V2.4 learning progression
 
 The first complete product slice includes:
 
-- Python, C++, and Java language selection
+- Python, C++, Java, JavaScript, TypeScript, and C# language selection
+- Balanced bracket, parenthesis, brace, entry-point, and Python block checks
 - Responsive code editor workspace
 - Run-code interaction with clear states
 - Student-friendly error explanation pattern
 - Progressive hint before answer reveal
 - Suggested fix and apply-fix journey
 - Debug journey progress tracker
+- Twelve interactive debugging challenges with language filtering
+- Recent-check history and passed-check count saved locally on the learner's device
+- Real daily practice streak saved locally on the learner's device
+- XP, learner levels, challenge completion, and progress-to-next-level tracking
+- Source-code download using the correct language file extension
+- One-click code copy, reset, and keyboard run shortcut
 - Learner mode copy and analogy card
 - Mobile-first responsive layout
 - Dark workbench visual system for a credible developer-tool experience
 
-The current browser prototype uses deterministic local demo behavior so it is safe to preview publicly. It **does not execute arbitrary user code on the web server**.
+The current browser prototype uses deterministic local guided checks so it is safe to preview publicly. It **does not execute arbitrary user code on the web server** and does not pretend that guided output is a complete compiler result.
 
 For the complete release gates, Vercel setup notes, runner security requirements, and device-testing checklist, see [`DEPLOYMENT.md`](./DEPLOYMENT.md). The current site should be described publicly as a CodeMend product preview until those gates are complete.
 
@@ -50,9 +57,11 @@ Arbitrary code execution must stay behind a dedicated sandbox boundary with reso
 ## Roadmap
 
 - **V2.1 — Workspace foundation:** editor, run flow, result states, responsive UI. **Complete.**
-- **V2.2 — Error detection:** parse compiler/runtime output into structured, student-friendly explanations.
-- **V2.3 — Guided fixing:** AI hint, “Show answer?”, apply fix, and verify fix.
-- **V2.4 — Learning mode:** mistake history, practice questions, progress, and secure deployment.
+- **V2.2 — Guided practice:** local error patterns, challenges, progress history, copy/reset shortcuts. **Complete.**
+- **V2.3 — Multi-language practice:** six languages, six challenges, and a genuine local daily streak. **Complete.**
+- **V2.4 — Learning progression:** twelve challenges, filters, XP, levels, completion progress, and code download. **Complete.**
+- **V2.5 — Secure execution:** connect an isolated runner and parse real compiler/runtime output.
+- **V2.6 — Adaptive learning:** skill paths, richer concepts, difficulty adaptation, and optional accounts.
 
 ## Local development
 

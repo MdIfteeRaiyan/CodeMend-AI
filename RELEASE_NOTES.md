@@ -1,5 +1,28 @@
 # CodeMend release notes
 
+## 1.3.0 — Learning progression
+
+- Expanded the practice lab from six to twelve debugging challenges.
+- Added per-language challenge filtering and completion indicators.
+- Added XP, learner levels, and next-level progress tracking.
+- Added source-code downloads with the correct language extension.
+- Kept all progress private and available without an account.
+
+## 1.2.0 — Languages and real streaks
+
+- Added JavaScript, TypeScript, and C# for six supported languages in total.
+- Expanded the practice lab from three to six selectable debugging challenges.
+- Replaced the decorative streak with a real daily streak stored in the browser.
+- Kept CodeMend guest-first: no account is required until cloud sync becomes useful.
+
+## 1.1.0 — Guided practice upgrade
+
+- Added three selectable Python, C++, and Java debugging challenges.
+- Added general unmatched delimiter checks plus Python colon and Java/C++ entry-point guidance.
+- Added recent run history and passed-check statistics stored only in the browser.
+- Added copy-code feedback and improved the practice sidebar.
+- Preserved the zero-credential, static Vercel deployment model.
+
 ## What changed
 
 - Renamed the product from CodeLens to CodeMend.

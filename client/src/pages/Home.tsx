@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
   BookOpen,
@@ -8,37 +8,93 @@ import {
   Code2,
   Command,
   Compass,
+  Copy,
+  Download,
   ExternalLink,
   Github,
   GraduationCap,
+  History,
   Lightbulb,
   Menu,
   Play,
   RotateCcw,
   Sparkles,
+  Target,
   Terminal,
+  Trophy,
   WandSparkles,
   X,
   Zap,
 } from "lucide-react";
 import type { ExecutionResult } from "@shared/execution";
 
-type Language = "Python" | "C++" | "Java";
+type Language = "Python" | "C++" | "Java" | "JavaScript" | "TypeScript" | "C#";
 type RunState = "idle" | "error" | "fixed";
+
+type PracticeChallenge = {
+  id: string;
+  title: string;
+  language: Language;
+  level: "Beginner" | "Intermediate";
+  minutes: number;
+  xp: number;
+  code: string;
+};
+
+type SavedRun = { language: Language; status: "Passed" | "Review"; at: string };
 
 const starterCode: Record<Language, string> = {
   Python: `def greet(name):\n    message = "Hello, " + name\n    print(message\n\ngreet("Mina")`,
   "C++": `#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Hello, CodeMend!" << endl;\n  return 0;\n}`,
   Java: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, CodeMend!");\n  }\n}`,
+  JavaScript: `function greet(name) {\n  const message = "Hello, " + name;\n  console.log(message);\n}\n\ngreet("Mina");`,
+  TypeScript: `function greet(name: string): void {\n  const message: string = "Hello, " + name;\n  console.log(message);\n}\n\ngreet("Mina");`,
+  "C#": `using System;\n\nclass Program {\n  static void Main(string[] args) {\n    Console.WriteLine("Hello, CodeMend!");\n  }\n}`,
 };
+
+const challenges: PracticeChallenge[] = [
+  { id: "py-paren", title: "Close the function call", language: "Python", level: "Beginner", minutes: 3, xp: 20, code: starterCode.Python },
+  { id: "py-colon", title: "Restore the missing colon", language: "Python", level: "Intermediate", minutes: 4, xp: 30, code: `def is_even(number)\n    if number % 2 == 0:\n        print("Even")\n\nis_even(8)` },
+  { id: "cpp-main", title: "Repair the entry point", language: "C++", level: "Beginner", minutes: 5, xp: 20, code: `#include <iostream>\nusing namespace std;\n\nint start() {\n  cout << "Hello, CodeMend!" << endl;\n  return 0;\n}` },
+  { id: "cpp-brace", title: "Close the main block", language: "C++", level: "Intermediate", minutes: 5, xp: 30, code: `#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Keep going!" << endl;` },
+  { id: "java-brace", title: "Balance the class braces", language: "Java", level: "Intermediate", minutes: 6, xp: 30, code: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Keep learning!");\n  }` },
+  { id: "java-main", title: "Find the missing main", language: "Java", level: "Beginner", minutes: 4, xp: 20, code: `public class Main {\n  public static void start(String[] args) {\n    System.out.println("Hello!");\n  }\n}` },
+  { id: "js-function", title: "Complete the function", language: "JavaScript", level: "Beginner", minutes: 4, xp: 20, code: `function add(a, b) {\n  return a + b;\n\nconsole.log(add(2, 3));` },
+  { id: "js-array", title: "Close the array", language: "JavaScript", level: "Intermediate", minutes: 4, xp: 30, code: `const skills = ["debug", "test", "learn";\nconsole.log(skills);` },
+  { id: "ts-greeting", title: "Fix the typed greeting", language: "TypeScript", level: "Intermediate", minutes: 5, xp: 30, code: `function greet(name: string): string {\n  return "Hello, " + name;\n\nconsole.log(greet("Mina"));` },
+  { id: "ts-object", title: "Balance the user object", language: "TypeScript", level: "Beginner", minutes: 4, xp: 20, code: `const learner: { name: string } = {\n  name: "Mina"\n;\nconsole.log(learner.name);` },
+  { id: "cs-main", title: "Repair the Main method", language: "C#", level: "Beginner", minutes: 5, xp: 20, code: `using System;\n\nclass Program {\n  static void Start() {\n    Console.WriteLine("Hello!");\n  }\n}` },
+  { id: "cs-brace", title: "Close the Program class", language: "C#", level: "Intermediate", minutes: 5, xp: 30, code: `using System;\n\nclass Program {\n  static void Main(string[] args) {\n    Console.WriteLine("Ready");\n  }` },
+];
 
 const fixedPython = `def greet(name):\n    message = "Hello, " + name\n    print(message)\n\ngreet("Mina")`;
 
-const languageMeta: Record<Language, { tone: string; version: string }> = {
-  Python: { tone: "#70d6a3", version: "3.12" },
-  "C++": { tone: "#87a8ff", version: "17" },
-  Java: { tone: "#ffb56d", version: "21" },
+const languageMeta: Record<Language, { tone: string; version: string; extension: string }> = {
+  Python: { tone: "#70d6a3", version: "3.12", extension: "py" },
+  "C++": { tone: "#87a8ff", version: "17", extension: "cpp" },
+  Java: { tone: "#ffb56d", version: "21", extension: "java" },
+  JavaScript: { tone: "#f5d76e", version: "ES2023", extension: "js" },
+  TypeScript: { tone: "#69a7ff", version: "5.9", extension: "ts" },
+  "C#": { tone: "#b38cff", version: ".NET 8", extension: "cs" },
 };
+
+function dayKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function calculateStreak(days: string[]) {
+  const unique = new Set(days);
+  const cursor = new Date();
+  let count = 0;
+  while (unique.has(dayKey(cursor))) {
+    count += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  return count;
+}
 
 function CodeLines({ code, errorLine }: { code: string; errorLine?: number | null }) {
   const count = Math.max(code.split("\n").length, 1);
@@ -67,20 +123,43 @@ function runGuidedCheck(language: Language, code: string): ExecutionResult {
     return finish({ status: "compile_error", stdout: "", stderr: "No code to check", line: 1, errorType: "EmptyEditor", explanation: "The editor is empty, so there is nothing to check yet.", hint: "Reset the editor to load a guided example." });
   }
 
+  const pairs: Record<string, string> = { "(": ")", "[": "]", "{": "}" };
+  const stack: Array<{ token: string; line: number }> = [];
+  let quote: string | null = null;
+  for (let index = 0; index < code.length; index += 1) {
+    const token = code[index];
+    if ((token === '"' || token === "'") && code[index - 1] !== "\\") quote = quote === token ? null : quote ? quote : token;
+    if (quote) continue;
+    const line = code.slice(0, index).split("\n").length;
+    if (pairs[token]) stack.push({ token, line });
+    else if (Object.values(pairs).includes(token)) {
+      const open = stack.pop();
+      if (!open || pairs[open.token] !== token) {
+        return finish({ status: "compile_error", stdout: "", stderr: `Unexpected '${token}'`, line, errorType: "DelimiterError", explanation: "A closing symbol does not match the symbol opened before it.", hint: `Check the brackets and parentheses around line ${line}.` });
+      }
+    }
+  }
+  if (stack.length) {
+    const open = stack[stack.length - 1];
+    return finish({ status: "compile_error", stdout: "", stderr: `'${open.token}' was never closed`, line: open.line, errorType: "DelimiterError", explanation: `This code opens '${open.token}' but never closes it with '${pairs[open.token]}'.`, hint: `Add the matching '${pairs[open.token]}' after the unfinished block or expression.` });
+  }
+
   if (language === "Python") {
-    const missingParenthesis = lines.findIndex((line) => line.includes("print(message") && !line.includes("print(message)"));
-    if (missingParenthesis >= 0) {
-      return finish({ status: "compile_error", stdout: "", stderr: "'(' was never closed", line: missingParenthesis + 1, errorType: "SyntaxError", explanation: "This function call opens a parenthesis but the line ends before it closes.", hint: `Look at the end of line ${missingParenthesis + 1}. Which symbol closes the function call?` });
+    const missingColon = lines.findIndex((line) => /^\s*(def|if|elif|else|for|while)\b/.test(line) && !line.trimEnd().endsWith(":"));
+    if (missingColon >= 0) {
+      return finish({ status: "compile_error", stdout: "", stderr: "Expected ':'", line: missingColon + 1, errorType: "SyntaxError", explanation: "Python block statements end with a colon before their indented body.", hint: `Add ':' to the end of line ${missingColon + 1}.` });
     }
     const greeting = code.match(/greet\(["']([^"']+)["']\)/)?.[1] ?? "Mina";
     return finish({ status: "success", stdout: code.includes("print") ? `Hello, ${greeting}\n` : "Guided check passed.\n", stderr: "", line: null, errorType: null, explanation: "The guided syntax check passed.", hint: "Change the name and run the example again." });
   }
 
-  const hasEntryPoint = language === "C++" ? /int\s+main\s*\(/.test(code) : /static\s+void\s+main\s*\(/.test(code);
-  if (!hasEntryPoint) {
-    return finish({ status: "compile_error", stdout: "", stderr: "Program entry point not found", line: 1, errorType: "EntryPointError", explanation: `CodeMend could not find the ${language} program entry point.`, hint: language === "C++" ? "Add an int main() function." : "Add a public static void main(String[] args) method." });
+  const requiresEntryPoint = language === "C++" || language === "Java" || language === "C#";
+  const hasEntryPoint = language === "C++" ? /int\s+main\s*\(/i.test(code) : language === "C#" ? /static\s+void\s+Main\s*\(/.test(code) : /static\s+void\s+main\s*\(/.test(code);
+  if (requiresEntryPoint && !hasEntryPoint) {
+    const hint = language === "C++" ? "Add an int main() function." : language === "C#" ? "Add a static void Main(string[] args) method." : "Add a public static void main(String[] args) method.";
+    return finish({ status: "compile_error", stdout: "", stderr: "Program entry point not found", line: 1, errorType: "EntryPointError", explanation: `CodeMend could not find the ${language} program entry point.`, hint });
   }
-  const output = code.match(/(?:cout\s*<<|System\.out\.println\s*\()[\s]*["']([^"']+)["']/)?.[1] ?? "Guided check passed.";
+  const output = code.match(/(?:cout\s*<<|System\.out\.println\s*\(|Console\.WriteLine\s*\(|console\.log\s*\()[\s]*["']([^"']+)["']/)?.[1] ?? "Guided check passed.";
   return finish({ status: "success", stdout: `${output}\n`, stderr: "", line: null, errorType: null, explanation: "The guided structure check passed.", hint: "Connect a secure runner later for full compilation and runtime output." });
 }
 
@@ -103,11 +182,31 @@ export default function Home() {
   const [isRunning, setIsRunning] = useState(false);
   const [result, setResult] = useState<ExecutionResult | null>(null);
   const [aiExplanation, setAiExplanation] = useState<{ whatHappened: string; hint: string; concept: string } | null>(null);
+  const [history, setHistory] = useState<SavedRun[]>([]);
+  const [practiceDays, setPracticeDays] = useState<string[]>([]);
+  const [activeChallenge, setActiveChallenge] = useState<number | null>(0);
+  const [completedChallenges, setCompletedChallenges] = useState<string[]>([]);
+  const [challengeFilter, setChallengeFilter] = useState<"All" | Language>("All");
+  const [copied, setCopied] = useState(false);
+
+  useEffect(() => {
+    try {
+      const saved = window.localStorage.getItem("codemend-history");
+      if (saved) setHistory(JSON.parse(saved) as SavedRun[]);
+      const savedDays = window.localStorage.getItem("codemend-practice-days");
+      if (savedDays) setPracticeDays(JSON.parse(savedDays) as string[]);
+      const savedChallenges = window.localStorage.getItem("codemend-completed-challenges");
+      if (savedChallenges) setCompletedChallenges(JSON.parse(savedChallenges) as string[]);
+    } catch {
+      // Progress storage is optional; the checker still works in private browsing.
+    }
+  }, []);
 
   const codeLines = useMemo(() => code.split("\n").length, [code]);
   const activeMeta = languageMeta[language];
 
   const changeLanguage = (next: Language) => {
+    setActiveChallenge(null);
     setLanguage(next);
     setCode(starterCode[next]);
     setRunState("idle");
@@ -124,8 +223,52 @@ export default function Home() {
       setResult(nextResult);
       setRunState(nextResult.status === "success" ? "fixed" : "error");
       setAiExplanation(nextResult.status === "success" ? null : { whatHappened: nextResult.explanation, hint: nextResult.hint, concept: nextResult.errorType ?? "Debugging" });
+      const savedRun: SavedRun = { language, status: nextResult.status === "success" ? "Passed" : "Review", at: new Date().toISOString() };
+      const nextHistory: SavedRun[] = [
+        savedRun,
+        ...history,
+      ].slice(0, 6);
+      setHistory(nextHistory);
+      const today = dayKey();
+      const nextDays = Array.from(new Set([...practiceDays, today])).slice(-365);
+      setPracticeDays(nextDays);
+      const completedId = nextResult.status === "success" && activeChallenge !== null ? challenges[activeChallenge]?.id : null;
+      const nextCompleted = completedId ? Array.from(new Set([...completedChallenges, completedId])) : completedChallenges;
+      setCompletedChallenges(nextCompleted);
+      try {
+        window.localStorage.setItem("codemend-history", JSON.stringify(nextHistory));
+        window.localStorage.setItem("codemend-practice-days", JSON.stringify(nextDays));
+        window.localStorage.setItem("codemend-completed-challenges", JSON.stringify(nextCompleted));
+      } catch { /* optional */ }
       setIsRunning(false);
     }, 260);
+  };
+
+  const loadChallenge = (index: number) => {
+    const challenge = challenges[index];
+    setActiveChallenge(index);
+    setLanguage(challenge.language);
+    setCode(challenge.code);
+    setRunState("idle");
+    setResult(null);
+    setAiExplanation(null);
+    document.querySelector("#workspace")?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const copyCode = async () => {
+    await navigator.clipboard.writeText(code);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1400);
+  };
+
+  const downloadCode = () => {
+    const blob = new Blob([code], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `main.${activeMeta.extension}`;
+    anchor.click();
+    URL.revokeObjectURL(url);
   };
 
   const applyFix = () => {
@@ -134,6 +277,9 @@ export default function Home() {
     setRunState("fixed");
     setResult(runGuidedCheck("Python", fixedPython));
     setAiExplanation(null);
+    const nextCompleted = Array.from(new Set([...completedChallenges, "py-paren"]));
+    setCompletedChallenges(nextCompleted);
+    try { window.localStorage.setItem("codemend-completed-challenges", JSON.stringify(nextCompleted)); } catch { /* optional */ }
   };
 
   const resetCode = () => {
@@ -145,6 +291,11 @@ export default function Home() {
   };
 
   const statusLabel = runState === "error" ? "Needs attention" : runState === "fixed" ? "All clear" : "Ready to run";
+  const streak = calculateStreak(practiceDays);
+  const xp = challenges.filter((challenge) => completedChallenges.includes(challenge.id)).reduce((total, challenge) => total + challenge.xp, 0);
+  const level = Math.floor(xp / 100) + 1;
+  const levelProgress = xp % 100;
+  const visibleChallenges = challengeFilter === "All" ? challenges : challenges.filter((challenge) => challenge.language === challengeFilter);
 
   return (
     <div className="codemend-shell">
@@ -163,10 +314,7 @@ export default function Home() {
               <GraduationCap size={16} />
               {learnerMode ? "Learner mode" : "Focus mode"}
             </button>
-            <button className="profile-button" type="button" aria-label="Open profile menu">
-              <span className="profile-avatar">M</span>
-              <ChevronDown size={14} />
-            </button>
+            <span className="session-stat hide-mobile"><Trophy size={15} /> Level {level} · {xp} XP</span>
             <button className="mobile-menu-button" type="button" aria-label="Toggle navigation" onClick={() => setMobileNavOpen(!mobileNavOpen)}>
               {mobileNavOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -184,7 +332,7 @@ export default function Home() {
           <div className="hero-aside">
             <div className="streak-card">
               <div className="streak-icon"><Zap size={16} fill="currentColor" /></div>
-              <div><strong>3 day streak</strong><span>Keep the habit going</span></div>
+              <div><strong>{streak} day streak</strong><span>{streak ? "Practice again tomorrow" : "Run a check to begin"}</span></div>
               <ArrowRight size={16} className="muted-arrow" />
             </div>
             <div className="command-hint"><Command size={13} /> Press <kbd>Ctrl/⌘</kbd><kbd>Enter</kbd> to check</div>
@@ -195,15 +343,17 @@ export default function Home() {
           <div className="editor-column">
             <div className="panel editor-panel">
               <div className="panel-toolbar">
-                <div className="file-tab"><span className="file-dot" style={{ background: activeMeta.tone }} /> main.{language === "Python" ? "py" : language === "C++" ? "cpp" : "java"}</div>
+                <div className="file-tab"><span className="file-dot" style={{ background: activeMeta.tone }} /> main.{activeMeta.extension}</div>
                 <div className="toolbar-actions">
                   <div className="language-select-wrap">
                     <select value={language} onChange={(event) => changeLanguage(event.target.value as Language)} aria-label="Choose programming language">
-                      <option>Python</option><option>C++</option><option>Java</option>
+                      <option>Python</option><option>C++</option><option>Java</option><option>JavaScript</option><option>TypeScript</option><option>C#</option>
                     </select>
                     <ChevronDown size={14} />
                   </div>
                   <button className="icon-button" onClick={resetCode} type="button" aria-label="Reset code"><RotateCcw size={16} /></button>
+                  <button className={copied ? "icon-button copied" : "icon-button"} onClick={copyCode} type="button" aria-label={copied ? "Code copied" : "Copy code"} title={copied ? "Copied!" : "Copy code"}><Copy size={16} /></button>
+                  <button className="icon-button" onClick={downloadCode} type="button" aria-label="Download code" title="Download code"><Download size={16} /></button>
                   <button className="run-button" onClick={runCode} type="button" disabled={isRunning}>
                     {isRunning ? <span className="spinner" /> : <Play size={14} fill="currentColor" />}
                     {isRunning ? "Checking" : "Run code"}
@@ -262,7 +412,7 @@ export default function Home() {
                   </div>
                   <div className="answer-row">
                     <div><strong>Ready to see a suggested fix?</strong><span>Try to solve it yourself first — or reveal the answer when you’re ready.</span></div>
-                    <div className="answer-actions"><button className="ghost-button" type="button" onClick={() => setShowAnswer(false)}>Try myself</button>{language === "Python" && result?.errorType === "SyntaxError" && <button className="primary-button" type="button" onClick={() => setShowAnswer(true)}><WandSparkles size={15} /> Show answer</button>}</div>
+                    <div className="answer-actions"><button className="ghost-button" type="button" onClick={() => setShowAnswer(false)}>Try myself</button>{language === "Python" && activeChallenge !== null && challenges[activeChallenge]?.id === "py-paren" && (result?.errorType === "SyntaxError" || result?.errorType === "DelimiterError") && <button className="primary-button" type="button" onClick={() => setShowAnswer(true)}><WandSparkles size={15} /> Show answer</button>}</div>
                   </div>
                   {showAnswer && language === "Python" && <div className="suggested-fix"><div className="fix-heading"><span><Check size={14} /> Suggested fix</span><span className="fix-tag">1 line changed</span></div><div className="diff-line removed"><span>−</span><code>print(message</code></div><div className="diff-line added"><span>+</span><code>print(message)</code></div><button className="apply-button" type="button" onClick={applyFix}>Apply fix and check <ArrowRight size={15} /></button></div>}
                 </div>
@@ -271,6 +421,12 @@ export default function Home() {
           </div>
 
           <aside className="sidebar-column">
+            <div className="panel progress-card">
+              <div className="progress-card-top"><div className="progress-level"><span><Target size={14} /> Learner level</span><strong>Level {level}</strong></div><span className="xp-badge">{xp} XP</span></div>
+              <div className="xp-track" aria-label={`${levelProgress}% progress to next level`}><span style={{ width: `${levelProgress}%` }} /></div>
+              <div className="progress-stats"><span><strong>{completedChallenges.length}</strong> / {challenges.length} challenges</span><span>{100 - levelProgress} XP to level {level + 1}</span></div>
+            </div>
+
             <div className="panel journey-card">
               <div className="card-topline"><div><span className="card-eyebrow">Debug journey</span><h2>Learn as you fix</h2></div><span className="step-count">{runState === "fixed" ? "4 / 4" : runState === "error" ? "2 / 4" : "1 / 4"}</span></div>
               <div className="journey-list">
@@ -283,15 +439,28 @@ export default function Home() {
               <p className="journey-caption">CodeMend never skips the learning part.</p>
             </div>
 
-            <div className="panel practice-card" id="practice">
-              <div className="practice-icon"><BookOpen size={17} /></div><div><span className="card-eyebrow">Next practice</span><h3>Functions &amp; parameters</h3><p>5 min · Beginner</p></div><button type="button" aria-label="Open practice"><ArrowRight size={16} /></button>
+            <div className="panel challenge-card" id="practice">
+              <div className="challenge-heading"><div className="practice-icon"><BookOpen size={17} /></div><div><span className="card-eyebrow">Practice lab</span><h3>Choose a bug to mend</h3></div></div>
+              <div className="challenge-filter"><select value={challengeFilter} onChange={(event) => setChallengeFilter(event.target.value as "All" | Language)} aria-label="Filter challenges by language"><option>All</option><option>Python</option><option>C++</option><option>Java</option><option>JavaScript</option><option>TypeScript</option><option>C#</option></select><span>{visibleChallenges.length} challenges</span></div>
+              <div className="challenge-list">
+                {visibleChallenges.map((challenge) => {
+                  const index = challenges.findIndex((item) => item.id === challenge.id);
+                  const isComplete = completedChallenges.includes(challenge.id);
+                  return <button className={activeChallenge === index ? "challenge-item active" : "challenge-item"} type="button" key={challenge.id} onClick={() => loadChallenge(index)}><span><strong>{isComplete && <Check size={11} />} {challenge.title}</strong><small>{challenge.language} · {challenge.minutes} min · {challenge.level} · {challenge.xp} XP</small></span><ArrowRight size={14} /></button>;
+                })}
+              </div>
+            </div>
+
+            <div className="panel history-card">
+              <div className="history-heading"><span><History size={14} /> Recent activity</span>{history.length > 0 && <button type="button" onClick={() => { setHistory([]); window.localStorage.removeItem("codemend-history"); }}>Clear</button>}</div>
+              {history.length === 0 ? <p>Your checks will be saved here on this device.</p> : history.slice(0, 4).map((item, index) => <div className="history-row" key={`${item.at}-${index}`}><span>{item.language}</span><span className={item.status === "Passed" ? "passed" : "review"}>{item.status}</span></div>)}
             </div>
 
             <div className="mini-note" id="how-it-works"><div className="mini-note-icon"><Compass size={15} /></div><div><strong>Good debugging is a skill.</strong><span>Build yours by understanding every error, not hiding it.</span></div></div>
           </aside>
         </section>
 
-        <footer className="page-footer"><div><AppMark /><span className="footer-copy">A guided coding debugger &amp; learning assistant</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">About the method</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
+        <footer className="page-footer"><div><AppMark /><span className="version-badge">v1.3</span><span className="footer-copy">A guided coding debugger &amp; learning assistant</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">About the method</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
       </main>
     </div>
   );

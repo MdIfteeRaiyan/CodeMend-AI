@@ -1,10 +1,17 @@
 # CodeMend public launch checklist
 
+## Important: repository root
+
+Upload the **contents** of this project directly to the GitHub repository root.
+`package.json`, `vercel.json`, `client`, and `server` must be visible at the top
+level of the repository. Do not upload them inside another `CodeMend` folder.
+After deployment, the page footer must show `v1.3`.
+
 This document separates what is ready now from what must be completed before presenting CodeMend as a real online compiler.
 
 ## Current launch status
 
-The current V2.1 workspace is safe to host as a **product preview**. Its run interaction is deterministic demo behavior in the browser. It does not execute arbitrary Python, C++, or Java on the public server.
+The current V2.4 workspace is safe to host as a **product preview**. Its run interaction is deterministic guided behavior in the browser. It does not execute arbitrary code on the public server.
 
 Do not advertise the current deployment as a production compiler until the execution items below are complete.
 
