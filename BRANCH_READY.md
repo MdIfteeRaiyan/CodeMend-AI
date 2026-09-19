@@ -1,14 +1,14 @@
-# CodeMend v1.7 branch handoff
+# CodeMend v2.0 branch handoff
 
-Recommended branch: `feature/learning-paths-v1.7`
+Recommended branch: `feature/secure-runner-v2`
 
 ```bash
-git switch -c feature/learning-paths-v1.7
+git switch -c feature/secure-runner-v2
 git add -A
-git commit -m "Release CodeMend v1.7 complete learning paths"
-git push -u origin feature/learning-paths-v1.7
+git commit -m "Release CodeMend v2 secure runner and test lab"
+git push -u origin feature/secure-runner-v2
 ```
 
 After review, merge this branch into `main` and let Vercel deploy the merge commit.
-The deployed page footer must show `v1.7`, and the browser tab must show the
+The deployed page footer must show `v2.0`, and the browser tab must show the
 mint CodeMend icon.

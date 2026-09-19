@@ -1,14 +1,19 @@
-# CodeMend
+# CodeMend v2.0
 
-**Guided Coding Debugger & Learning Assistant**
+**Secure, Test-Driven Coding Debugger & Learning Assistant**
 
-CodeMend is a student-first coding workspace designed to help learners understand programming mistakes instead of hiding them. It combines a focused editor, error explanations, progressive hints, suggested fixes, and a short feedback loop that ends with proving the fix works.
+CodeMend is a student-first coding workspace created by **Md. Iftee Raiyan**. It helps learners understand programming mistakes, verify fixes with test cases, and grow across twelve language paths.
 
 > **Core philosophy:** Don't just fix the code. Understand the error. Learn from the mistake.
 
-## Current milestone: V2.8 complete learning paths
+## Current milestone: v2.0 secure runner and test lab
 
 The first complete product slice includes:
+
+- Up to six editable test cases with standard input and expected output
+- Individual pass/fail/error feedback and exact normalized-output comparison
+- Protected Vercel API adapter for a separate sandboxed execution provider
+- Honest preview fallback when the secure runner is not configured
 
 - Python, C, C++, Java, JavaScript, TypeScript, C#, Go, Rust, PHP, Kotlin, and Ruby selection
 - Balanced bracket, parenthesis, brace, entry-point, and Python block checks
@@ -49,10 +54,7 @@ React workspace
       v
 Typed backend API
       |
-      +--> sandboxed execution service
-      |       +--> Python
-      |       +--> C++
-      |       +--> Java
+      +--> sandboxed execution service (12 languages)
       |
       +--> AI error analyzer
 ```
@@ -61,16 +63,10 @@ Arbitrary code execution must stay behind a dedicated sandbox boundary with reso
 
 ## Roadmap
 
-- **V2.1 — Workspace foundation:** editor, run flow, result states, responsive UI. **Complete.**
-- **V2.2 — Guided practice:** local error patterns, challenges, progress history, copy/reset shortcuts. **Complete.**
-- **V2.3 — Multi-language practice:** six languages, six challenges, and a genuine local daily streak. **Complete.**
-- **V2.4 — Learning progression:** twelve challenges, filters, XP, levels, completion progress, and code download. **Complete.**
-- **V2.5 — Productive workspace:** isolated JavaScript execution, drafts, imports, downloads, and share links. **Complete.**
-- **V2.6 — Brand identity:** consistent header mark, browser favicon, mobile icons, and install metadata. **Complete.**
-- **V2.7 — Language proficiency:** nine language paths, eighteen challenges, and per-language mastery. **Complete.**
-- **V2.8 — Complete learning paths:** twelve languages, twenty-four challenges, daily goals, and next-step guidance. **Complete.**
-- **V2.9 — Secure multi-language execution:** connect an isolated runner and parse real compiler/runtime output.
-- **V3.0 — Adaptive learning:** richer concepts, difficulty adaptation, and optional accounts.
+- **v1.x — Learning workspace:** editor, guided practice, twelve languages, twenty-four challenges, XP, streaks, drafts, sharing, and proficiency. **Complete.**
+- **v2.0 — Test-driven execution:** editable test cases, protected execution adapter, normalized results, secure-runner documentation, and creator profile. **Complete.**
+- **Next — Production runner:** deploy hardened containers or microVMs, durable rate limits, job queues, and abuse monitoring.
+- **Later — Adaptive learning:** richer concepts, difficulty adaptation, and optional accounts.
 
 ## Local development
 

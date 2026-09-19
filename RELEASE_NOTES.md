@@ -1,5 +1,14 @@
 # CodeMend release notes
 
+## 2.0.0 — Secure runner and verification lab
+
+- Added up to six editable test cases with standard input and expected output.
+- Added per-case pass, fail, error, timeout, actual-output, and execution-time feedback.
+- Added a validated, rate-limited Vercel API adapter that keeps runner credentials server-side.
+- Added explicit secure-runner and preview modes; guided checks are never presented as real compilation.
+- Added deployment documentation for isolated container or microVM execution.
+- Added an About section for creator Md. Iftee Raiyan.
+
 ## 1.7.0 — Complete learning paths
 
 - Added C, Kotlin, and Ruby for twelve supported language paths.
@@ -76,8 +85,8 @@
    values so Vercel reads `vercel.json`.
 4. Redeploy without the previous build cache.
 
-The public version is an honest guided-learning prototype. It does not execute
-arbitrary code. Real compilation requires a separate isolated runner service.
+The public version uses an honest guided fallback until `CODE_RUNNER_BASE_URL`
+and `CODE_RUNNER_API_KEY` connect it to a separate isolated runner service.
 
 ## Required security action
 

@@ -3,5 +3,8 @@
   "framework": "vite",
   "installCommand": "corepack pnpm install --frozen-lockfile",
   "buildCommand": "corepack pnpm build:client",
-  "outputDirectory": "dist/public"
+  "outputDirectory": "dist/public",
+  "functions": {
+    "api/execute.ts": { "maxDuration": 30 }
+  }
 }

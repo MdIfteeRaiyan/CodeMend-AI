@@ -5,13 +5,13 @@
 Upload the **contents** of this project directly to the GitHub repository root.
 `package.json`, `vercel.json`, `client`, and `server` must be visible at the top
 level of the repository. Do not upload them inside another `CodeMend` folder.
-After deployment, the page footer must show `v1.7`.
+After deployment, the page footer must show `v2.0`.
 
 This document separates what is ready now from what must be completed before presenting CodeMend as a real online compiler.
 
 ## Current launch status
 
-The current V2.4 workspace is safe to host as a **product preview**. Its run interaction is deterministic guided behavior in the browser. It does not execute arbitrary code on the public server.
+The current v2.0 workspace is safe to host as a **product preview**. It includes a server-side adapter for an external isolated runner and falls back to clearly labelled guided behavior when that runner is not configured. It never compiles arbitrary code inside Vercel.
 
 Do not advertise the current deployment as a production compiler until the execution items below are complete.
 
@@ -40,11 +40,11 @@ The frontend should never receive runner credentials. The API should validate th
 - [ ] Disable outbound network access from execution containers.
 - [ ] Apply CPU, memory, process-count, wall-clock, and output-size limits.
 - [ ] Use a temporary filesystem and delete it after every job.
-- [ ] Reject oversized code and input before queueing a job.
-- [ ] Rate-limit by IP and authenticated user.
+- [x] Reject oversized code and input before queueing a job.
+- [x] Apply a basic per-instance IP rate limit in the Vercel adapter.
 - [ ] Add request IDs and server-side audit logs without storing secrets.
-- [ ] Normalize Python, C++, and Java compiler/runtime errors into one schema.
-- [ ] Add timeout and provider-failure states to the UI.
+- [x] Normalize all twelve language results into one schema.
+- [x] Add timeout and provider-failure states to the UI.
 - [ ] Test infinite loops, fork bombs, large output, file access, network access, and malformed payloads.
 
 ## Before connecting AI analysis
@@ -72,7 +72,7 @@ Node server and caused the previous deployment to display JavaScript as the page
 2. Confirm the frontend build command and output directory match the project configuration.
 3. Add production environment variables in the Vercel project settings; never commit `.env` files.
 4. Configure the production OAuth callback URL if authentication is enabled.
-5. Set the API base URL to the separately hosted backend or execution gateway.
+5. Set `CODE_RUNNER_BASE_URL` and `CODE_RUNNER_API_KEY` for the separately hosted execution gateway.
 6. Configure CORS to allow only the production frontend origin.
 7. Verify that API secrets are not included in client-side bundles.
 8. Exercise the production build with an empty editor, valid code, compile error, timeout, provider failure, and mobile layout.

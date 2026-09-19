@@ -7,12 +7,23 @@ const readProjectFile = (relativePath: string) =>
   readFileSync(resolve(projectRoot, relativePath), "utf8");
 
 describe("public launch readiness contract", () => {
-  it("labels the current run experience as a browser-based guided check", () => {
+  it("labels secure execution and preserves the guided fallback", () => {
     const homePage = readProjectFile("client/src/pages/Home.tsx");
 
-    expect(homePage).toContain("Guided check · runs safely in your browser");
+    expect(homePage).toContain("Secure runner ready · preview fallback enabled");
+    expect(homePage).toContain("Run against test cases");
     expect(homePage).toContain("Apply fix and check");
     expect(homePage).toContain("Show answer");
+  });
+
+  it("keeps untrusted compilation outside the Vercel application", () => {
+    const api = readProjectFile("api/execute.ts");
+    const guide = readProjectFile("SECURE_RUNNER.md");
+
+    expect(api).toContain("CODE_RUNNER_BASE_URL");
+    expect(api).toContain("MAX_REQUESTS_PER_WINDOW");
+    expect(guide).toContain("fresh container or microVM");
+    expect(api).not.toMatch(/child_process|execSync|spawnSync/);
   });
 
   it("keeps production execution requirements documented", () => {

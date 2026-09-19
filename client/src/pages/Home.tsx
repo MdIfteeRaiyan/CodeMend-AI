@@ -16,18 +16,22 @@ import {
   Lightbulb,
   Menu,
   Play,
+  Plus,
   RotateCcw,
   Share2,
+  ShieldCheck,
   Sparkles,
   Target,
   Terminal,
   Trophy,
+  Trash2,
   Upload,
+  UserRound,
   WandSparkles,
   X,
   Zap,
 } from "lucide-react";
-import type { ExecutionResult } from "@shared/execution";
+import type { ExecutionResult, TestCase, TestExecutionResult } from "@shared/execution";
 
 type Language = "Python" | "C" | "C++" | "Java" | "JavaScript" | "TypeScript" | "C#" | "Go" | "Rust" | "PHP" | "Kotlin" | "Ruby";
 type RunState = "idle" | "error" | "fixed";
@@ -43,6 +47,13 @@ type PracticeChallenge = {
 };
 
 type SavedRun = { language: Language; status: "Passed" | "Review"; at: string };
+
+const createTestCase = (index: number): TestCase => ({
+  id: `case-${Date.now()}-${index}`,
+  name: `Test ${index}`,
+  stdin: "",
+  expectedOutput: index === 1 ? "Hello, Mina" : "",
+});
 
 const starterCode: Record<Language, string> = {
   Python: `def greet(name):\n    message = "Hello, " + name\n    print(message\n\ngreet("Mina")`,
@@ -261,6 +272,8 @@ export default function Home() {
   const [challengeFilter, setChallengeFilter] = useState<"All" | Language>("All");
   const [copied, setCopied] = useState(false);
   const [workspaceNotice, setWorkspaceNotice] = useState("");
+  const [testCases, setTestCases] = useState<TestCase[]>([createTestCase(1)]);
+  const [testResults, setTestResults] = useState<TestExecutionResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -301,13 +314,59 @@ export default function Home() {
     setResult(null);
     setAiExplanation(null);
     setShowAnswer(false);
+    setTestResults(null);
+  };
+
+  const runSecureTests = async (): Promise<TestExecutionResult | null> => {
+    try {
+      const response = await fetch("/api/execute", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ language, code, testCases }),
+      });
+      if (!response.ok) return null;
+      return await response.json() as TestExecutionResult;
+    } catch {
+      return null;
+    }
   };
 
   const runCode = () => {
     setIsRunning(true);
     setShowAnswer(false);
     window.setTimeout(async () => {
-      const nextResult = language === "JavaScript" ? await runJavaScriptInWorker(code) : runGuidedCheck(language, code);
+      const secureTests = await runSecureTests();
+      setTestResults(secureTests);
+      let nextResult: ExecutionResult;
+      if (secureTests) {
+        const firstProblem = secureTests.tests.find((test) => test.status !== "passed");
+        nextResult = {
+          status: secureTests.status === "passed" ? "success" : secureTests.status === "compile_error" ? "compile_error" : "runtime_error",
+          language,
+          stdout: secureTests.tests.map((test) => test.actualOutput).filter(Boolean).join("\n"),
+          stderr: firstProblem?.stderr ?? "",
+          line: null,
+          errorType: secureTests.status === "passed" ? null : secureTests.status === "compile_error" ? "CompileError" : "TestFailure",
+          explanation: secureTests.message,
+          hint: firstProblem ? `Compare the actual output with the expected output in ${firstProblem.name}.` : "All test cases passed.",
+          executionTimeMs: secureTests.tests.reduce((total, test) => total + test.executionTimeMs, 0),
+          isDemo: false,
+        };
+      } else {
+        nextResult = language === "JavaScript" ? await runJavaScriptInWorker(code) : runGuidedCheck(language, code);
+        const actual = nextResult.stdout.trimEnd();
+        const fallbackTests = testCases.map((test) => ({
+          id: test.id,
+          name: test.name,
+          status: nextResult.status === "success" && actual === test.expectedOutput.trimEnd() ? "passed" as const : nextResult.status === "success" ? "failed" as const : "error" as const,
+          expectedOutput: test.expectedOutput,
+          actualOutput: nextResult.stdout,
+          stderr: nextResult.stderr,
+          executionTimeMs: nextResult.executionTimeMs,
+        }));
+        const passed = fallbackTests.filter((test) => test.status === "passed").length;
+        setTestResults({ language, status: passed === testCases.length ? "passed" : "failed", passed, total: testCases.length, tests: fallbackTests, message: `${passed} of ${testCases.length} preview tests passed. Connect the secure runner for real compilation.`, isDemo: true });
+      }
       setResult(nextResult);
       setRunState(nextResult.status === "success" ? "fixed" : "error");
       setAiExplanation(nextResult.status === "success" ? null : { whatHappened: nextResult.explanation, hint: nextResult.hint, concept: nextResult.errorType ?? "Debugging" });
@@ -340,6 +399,7 @@ export default function Home() {
     setRunState("idle");
     setResult(null);
     setAiExplanation(null);
+    setTestResults(null);
     document.querySelector("#workspace")?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -394,6 +454,12 @@ export default function Home() {
     setResult(null);
     setAiExplanation(null);
     setShowAnswer(false);
+    setTestResults(null);
+  };
+
+  const updateTestCase = (id: string, field: "name" | "stdin" | "expectedOutput", value: string) => {
+    setTestCases((current) => current.map((test) => test.id === id ? { ...test, [field]: value } : test));
+    setTestResults(null);
   };
 
   const statusLabel = runState === "error" ? "Needs attention" : runState === "fixed" ? "All clear" : "Ready to run";
@@ -423,6 +489,7 @@ export default function Home() {
             <a href="#workspace" className="nav-link active">Workspace</a>
             <a href="#how-it-works" className="nav-link">How it works</a>
             <a href="#practice" className="nav-link">Practice</a>
+            <a href="#about" className="nav-link">About</a>
           </nav>
           <div className="topbar-actions">
             <button className="text-button hide-mobile" type="button" onClick={() => setLearnerMode(!learnerMode)}>
@@ -478,7 +545,7 @@ export default function Home() {
                   </button>
                 </div>
               </div>
-              <div className="editor-meta"><span><span className="live-dot" /> {language === "JavaScript" ? "Live execution · isolated browser worker" : "Guided check · runs safely in your browser"}</span><span>{workspaceNotice || `${codeLines} lines · ${activeMeta.version}`}</span></div>
+              <div className="editor-meta"><span><span className="live-dot" /> Secure runner ready · preview fallback enabled</span><span>{workspaceNotice || `${codeLines} lines · ${activeMeta.version}`}</span></div>
               <div className="editor-body">
                 <CodeLines code={code} errorLine={runState === "error" ? result?.line : null} />
                 <textarea
@@ -496,6 +563,22 @@ export default function Home() {
                 />
               </div>
               <div className="editor-footer"><span>Spaces: 4</span><span>UTF-8</span><span>Ln {runState === "error" ? result?.line ?? 1 : codeLines}, Col 5</span></div>
+            </div>
+
+            <div className="panel test-lab" aria-labelledby="test-lab-title">
+              <div className="test-lab-heading"><div><span className="card-eyebrow"><ShieldCheck size={13} /> Verification lab</span><h2 id="test-lab-title">Run against test cases</h2></div><span>{testCases.length}/6 cases</span></div>
+              <p className="test-lab-copy">Each case runs separately with its own input. Output must match exactly after trailing whitespace is ignored.</p>
+              <div className="test-case-list">
+                {testCases.map((test, index) => {
+                  const testResult = testResults?.tests.find((item) => item.id === test.id);
+                  return <div className="test-case" key={test.id}>
+                    <div className="test-case-top"><input value={test.name} maxLength={80} aria-label={`Name for test ${index + 1}`} onChange={(event) => updateTestCase(test.id, "name", event.target.value)} /><span className={testResult ? `test-status ${testResult.status}` : "test-status"}>{testResult?.status ?? "Not run"}</span>{testCases.length > 1 && <button type="button" aria-label={`Remove ${test.name}`} onClick={() => { setTestCases((current) => current.filter((item) => item.id !== test.id)); setTestResults(null); }}><Trash2 size={13} /></button>}</div>
+                    <div className="test-fields"><label>Standard input<textarea value={test.stdin} maxLength={4000} placeholder="Optional stdin" onChange={(event) => updateTestCase(test.id, "stdin", event.target.value)} /></label><label>Expected output<textarea value={test.expectedOutput} maxLength={20000} placeholder="Expected console output" onChange={(event) => updateTestCase(test.id, "expectedOutput", event.target.value)} /></label></div>
+                    {testResult && testResult.status !== "passed" && <div className="test-diff"><span>Actual output</span><pre>{testResult.actualOutput || testResult.stderr || "No output"}</pre></div>}
+                  </div>;
+                })}
+              </div>
+              <div className="test-lab-footer"><button type="button" disabled={testCases.length >= 6} onClick={() => setTestCases((current) => [...current, createTestCase(current.length + 1)])}><Plus size={14} /> Add test case</button>{testResults && <strong className={testResults.passed === testResults.total ? "all-passed" : "tests-failed"}>{testResults.passed}/{testResults.total} passed · {testResults.isDemo ? "preview" : "secure runner"}</strong>}</div>
             </div>
 
             <div className={`result-panel ${runState === "error" ? "result-error" : runState === "fixed" ? "result-success" : "result-idle"}`}>
@@ -591,7 +674,13 @@ export default function Home() {
           </aside>
         </section>
 
-        <footer className="page-footer"><div><AppMark /><span className="version-badge">v1.7</span><span className="footer-copy">A guided coding debugger &amp; learning assistant</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">About the method</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
+        <section className="about-section panel" id="about">
+          <div className="about-icon"><UserRound size={24} /></div>
+          <div><span className="card-eyebrow">About the creator</span><h2>Built by Md. Iftee Raiyan</h2><p>CodeMend is a learning-first debugging workspace designed to help programmers understand errors, verify solutions with test cases, and grow across multiple languages.</p></div>
+          <a href="https://github.com/MdIfteeRaiyan" target="_blank" rel="noreferrer"><Github size={15} /> View GitHub <ExternalLink size={11} /></a>
+        </section>
+
+        <footer className="page-footer"><div><AppMark /><span className="version-badge">v2.0</span><span className="footer-copy">Secure test-driven debugging &amp; learning</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#about">About Md. Iftee Raiyan</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
       </main>
     </div>
   );
