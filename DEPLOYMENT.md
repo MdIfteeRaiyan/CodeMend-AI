@@ -5,7 +5,7 @@
 Upload the **contents** of this project directly to the GitHub repository root.
 `package.json`, `vercel.json`, `client`, and `server` must be visible at the top
 level of the repository. Do not upload them inside another `CodeMend` folder.
-After deployment, the page footer must show `v1.6`.
+After deployment, the page footer must show `v1.7`.
 
 This document separates what is ready now from what must be completed before presenting CodeMend as a real online compiler.
 

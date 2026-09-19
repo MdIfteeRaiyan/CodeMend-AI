@@ -1,5 +1,13 @@
 # CodeMend release notes
 
+## 1.7.0 — Complete learning paths
+
+- Added C, Kotlin, and Ruby for twelve supported language paths.
+- Expanded the practice library from eighteen to twenty-four challenges.
+- Added a three-check daily goal with live completion segments.
+- Added an automatic recommended-next-challenge action.
+- Added `.c`, `.kt`, `.kts`, and `.rb` imports and downloads.
+
 ## 1.6.0 — Languages and proficiency
 
 - Added Go, Rust, and PHP for nine supported language paths.

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const supportedLanguages = ["Python", "C++", "Java", "JavaScript", "TypeScript", "C#", "Go", "Rust", "PHP"] as const;
+export const supportedLanguages = ["Python", "C", "C++", "Java", "JavaScript", "TypeScript", "C#", "Go", "Rust", "PHP", "Kotlin", "Ruby"] as const;
 export type SupportedLanguage = (typeof supportedLanguages)[number];
 
 export const executionRequestSchema = z.object({

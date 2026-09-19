@@ -165,6 +165,19 @@ kbd { display: inline-flex; min-width: 20px; height: 19px; align-items: center; 
 .diff-line.added { color: #a8f0c5; background: rgba(94, 193, 126, .1); }
 .apply-button { margin-top: 12px; padding: 8px 11px; border-radius: 6px; font-size: 10px; }
 .sidebar-column { display: flex; flex-direction: column; gap: 16px; }
+.daily-goal-card { padding: 16px; border-color: rgba(240, 189, 105, .19); background: linear-gradient(145deg, rgba(42, 34, 22, .78), rgba(17, 23, 21, .92)); }
+.daily-goal-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.daily-goal-top h2 { margin-top: 5px; color: #f0e9dc; font-family: var(--font-display); font-size: 17px; }
+.daily-goal-top > span { padding: 5px 7px; color: #e9c98d; background: rgba(221, 168, 86, .12); border-radius: 6px; font-family: var(--font-mono); font-size: 9px; }
+.daily-segments { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; margin: 14px 0 12px; }
+.daily-segments i { height: 4px; background: rgba(224, 196, 147, .13); border-radius: 999px; }
+.daily-segments i.complete { background: #dfb66f; }
+.daily-goal-card > button { display: flex; align-items: center; justify-content: space-between; gap: 8px; width: 100%; padding: 9px 10px; border: 1px solid rgba(225, 190, 128, .14); color: #cab995; background: rgba(236, 191, 111, .05); border-radius: 8px; text-align: left; }
+.daily-goal-card > button:hover { border-color: rgba(225, 190, 128, .32); }
+.daily-goal-card > button span { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.daily-goal-card > button strong { color: #eadab8; font-size: 9px; }
+.daily-goal-card > button small { overflow: hidden; color: #8f826a; font-size: 8px; text-overflow: ellipsis; white-space: nowrap; }
+.daily-goal-card > p { color: #8f826a; font-size: 9px; line-height: 1.5; }
 .progress-card { padding: 16px; background: linear-gradient(145deg, rgba(24, 39, 31, .95), rgba(17, 23, 21, .9)); }
 .progress-card-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .progress-level { display: flex; flex-direction: column; gap: 5px; }
