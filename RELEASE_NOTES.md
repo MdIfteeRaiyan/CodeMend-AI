@@ -8,6 +8,7 @@
 - Added explicit secure-runner and preview modes; guided checks are never presented as real compilation.
 - Added deployment documentation for isolated container or microVM execution.
 - Added an About section for creator Md. Iftee Raiyan.
+- Refined the creator credit into a compact responsive footer and added LinkedIn-ready Open Graph metadata.
 
 ## 1.7.0 — Complete learning paths
 

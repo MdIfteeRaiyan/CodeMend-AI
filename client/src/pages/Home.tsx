@@ -26,7 +26,6 @@ import {
   Trophy,
   Trash2,
   Upload,
-  UserRound,
   WandSparkles,
   X,
   Zap,
@@ -674,13 +673,11 @@ export default function Home() {
           </aside>
         </section>
 
-        <section className="about-section panel" id="about">
-          <div className="about-icon"><UserRound size={24} /></div>
-          <div><span className="card-eyebrow">About the creator</span><h2>Built by Md. Iftee Raiyan</h2><p>CodeMend is a learning-first debugging workspace designed to help programmers understand errors, verify solutions with test cases, and grow across multiple languages.</p></div>
-          <a href="https://github.com/MdIfteeRaiyan" target="_blank" rel="noreferrer"><Github size={15} /> View GitHub <ExternalLink size={11} /></a>
-        </section>
-
-        <footer className="page-footer"><div><AppMark /><span className="version-badge">v2.0</span><span className="footer-copy">Secure test-driven debugging &amp; learning</span></div><div className="footer-links"><a href="#workspace">Workspace</a><a href="#about">About Md. Iftee Raiyan</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div></footer>
+        <footer className="page-footer" id="about">
+          <div className="footer-brand"><AppMark /><span className="version-badge">v2.0</span></div>
+          <div className="footer-about"><strong>Built by Md. Iftee Raiyan</strong><span>A learning-first debugger for understanding errors and verifying fixes.</span></div>
+          <div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">How it works</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer" aria-label="Open the CodeMend source code on GitHub"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div>
+        </footer>
       </main>
     </div>
   );
