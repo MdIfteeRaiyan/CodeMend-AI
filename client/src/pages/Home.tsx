@@ -47,11 +47,17 @@ type PracticeChallenge = {
 
 type SavedRun = { language: Language; status: "Passed" | "Review"; at: string };
 
-const createTestCase = (index: number): TestCase => ({
+const starterExpectedOutput: Record<Language, string> = {
+  Python: "Hello, Mina", C: "Hello, DebugTest!", "C++": "Hello, DebugTest!", Java: "Hello, DebugTest!",
+  JavaScript: "Hello, Mina", TypeScript: "Hello, Mina", "C#": "Hello, DebugTest!", Go: "Hello, DebugTest!",
+  Rust: "Hello, DebugTest!", PHP: "Hello, Mina", Kotlin: "Hello, DebugTest!", Ruby: "Hello, Mina!",
+};
+
+const createTestCase = (index: number, language: Language = "Python", expectedOutput = starterExpectedOutput[language]): TestCase => ({
   id: `case-${Date.now()}-${index}`,
   name: `Test ${index}`,
   stdin: "",
-  expectedOutput: index === 1 ? "Hello, Mina" : "",
+  expectedOutput: index === 1 ? expectedOutput : "",
 });
 
 const starterCode: Record<Language, string> = {
@@ -112,6 +118,13 @@ const languageMeta: Record<Language, { tone: string; version: string; extension:
   Kotlin: { tone: "#c88cff", version: "2.0", extension: "kt" },
   Ruby: { tone: "#ef7777", version: "3.3", extension: "rb" },
 };
+
+function suggestedOutput(language: Language, code: string) {
+  const calledName = code.match(/greet\(["']([^"']+)["']\)/)?.[1];
+  if (calledName && language === "Ruby" && code.includes("#{name}")) return `Hello, ${calledName}!`;
+  if (calledName && ["Python", "JavaScript", "TypeScript", "PHP"].includes(language)) return `Hello, ${calledName}`;
+  return code.match(/(?:printf\s*\(|cout\s*<<|System\.out\.println\s*\(|Console\.WriteLine\s*\(|console\.log\s*\(|fmt\.Println\s*\(|println!\s*\(|println\s*\(|echo\s+|puts\s+)[\s]*["']([^"']+)["']/)?.[1] ?? "";
+}
 
 function dayKey(date = new Date()) {
   const year = date.getFullYear();
@@ -258,6 +271,7 @@ export default function Home() {
   const [language, setLanguage] = useState<Language>("Python");
   const [code, setCode] = useState(starterCode.Python);
   const [runState, setRunState] = useState<RunState>("idle");
+  const [showHint, setShowHint] = useState(false);
   const [showAnswer, setShowAnswer] = useState(false);
   const [learnerMode, setLearnerMode] = useState(true);
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -312,8 +326,10 @@ export default function Home() {
     setRunState("idle");
     setResult(null);
     setAiExplanation(null);
+    setShowHint(false);
     setShowAnswer(false);
     setTestResults(null);
+    setTestCases([createTestCase(1, next)]);
   };
 
   const runSecureTests = async (): Promise<TestExecutionResult | null> => {
@@ -332,6 +348,7 @@ export default function Home() {
 
   const runCode = () => {
     setIsRunning(true);
+    setShowHint(false);
     setShowAnswer(false);
     window.setTimeout(async () => {
       const secureTests = await runSecureTests();
@@ -364,7 +381,19 @@ export default function Home() {
           executionTimeMs: nextResult.executionTimeMs,
         }));
         const passed = fallbackTests.filter((test) => test.status === "passed").length;
-        setTestResults({ language, status: passed === testCases.length ? "passed" : "failed", passed, total: testCases.length, tests: fallbackTests, message: `${passed} of ${testCases.length} preview tests passed. Connect the secure runner for real compilation.`, isDemo: true });
+        const fallbackResult: TestExecutionResult = { language, status: passed === testCases.length ? "passed" : "failed", passed, total: testCases.length, tests: fallbackTests, message: `${passed} of ${testCases.length} preview tests passed. Connect the secure runner for real compilation.`, isDemo: true };
+        setTestResults(fallbackResult);
+        if (nextResult.status === "success" && passed !== testCases.length) {
+          const firstFailure = fallbackTests.find((test) => test.status !== "passed");
+          nextResult = {
+            ...nextResult,
+            status: "runtime_error",
+            stderr: `${firstFailure?.name ?? "A test"} produced output that did not match the expected result.`,
+            errorType: "TestFailure",
+            explanation: "The code structure passed, but at least one output comparison failed.",
+            hint: "Compare the expected and actual output, including punctuation, capitalization, and spaces.",
+          };
+        }
       }
       setResult(nextResult);
       setRunState(nextResult.status === "success" ? "fixed" : "error");
@@ -398,7 +427,10 @@ export default function Home() {
     setRunState("idle");
     setResult(null);
     setAiExplanation(null);
+    setShowHint(false);
+    setShowAnswer(false);
     setTestResults(null);
+    setTestCases([createTestCase(1, challenge.language, suggestedOutput(challenge.language, challenge.code))]);
     document.querySelector("#workspace")?.scrollIntoView({ behavior: "smooth" });
   };
 
@@ -424,7 +456,7 @@ export default function Home() {
     const languageByExtension: Record<string, Language> = { py: "Python", c: "C", cpp: "C++", cc: "C++", java: "Java", js: "JavaScript", ts: "TypeScript", cs: "C#", go: "Go", rs: "Rust", php: "PHP", kt: "Kotlin", kts: "Kotlin", rb: "Ruby" };
     const nextLanguage = extension ? languageByExtension[extension] : undefined;
     if (!nextLanguage) { setWorkspaceNotice("Unsupported file type"); return; }
-    setLanguage(nextLanguage); setCode(await file.text()); setActiveChallenge(null); setRunState("idle"); setResult(null); setWorkspaceNotice(`${file.name} imported`);
+    setLanguage(nextLanguage); setCode(await file.text()); setActiveChallenge(null); setRunState("idle"); setResult(null); setShowHint(false); setShowAnswer(false); setWorkspaceNotice(`${file.name} imported`);
   };
 
   const shareCode = async () => {
@@ -452,6 +484,7 @@ export default function Home() {
     setRunState("idle");
     setResult(null);
     setAiExplanation(null);
+    setShowHint(false);
     setShowAnswer(false);
     setTestResults(null);
   };
@@ -484,9 +517,18 @@ export default function Home() {
     ["04", "Test", "Compare every case"],
     ["05", "Resolve", "Prove the repair"],
   ];
+  const progressiveHint = result?.errorType === "DelimiterError"
+    ? `Inspect the opening and closing symbols around line ${result.line ?? "the highlighted area"}. One pair is incomplete or mismatched.`
+    : result?.errorType === "SyntaxError"
+      ? `Look closely at the punctuation and structure near line ${result.line ?? "the highlighted area"}. Compare it with the language's block syntax.`
+      : result?.errorType === "EntryPointError"
+        ? `${language} expects a standard function where program execution begins. Check the function name and signature.`
+        : result?.errorType === "TestFailure"
+          ? "Compare the expected and actual output carefully, including spaces, capitalization, and edge cases."
+          : "Use the error type and highlighted line to narrow the problem before changing the code.";
 
   return (
-    <div className="debugtest-shell">
+    <div className={"debugtest-shell " + (learnerMode ? "" : "focus-mode")}>
       <div className="mesh mesh-one" />
       <div className="mesh mesh-two" />
       <header className="dt-header">
@@ -496,7 +538,7 @@ export default function Home() {
             <a href="#workspace">Workbench</a><a href="#workflow">Workflow</a><a href="#tests">Tests</a><a href="#practice">Practice</a>
           </nav>
           <div className="dt-header-actions">
-            <button className="mode-button hide-mobile" type="button" onClick={() => setLearnerMode(!learnerMode)}><GraduationCap size={15} /> {learnerMode ? "Guided" : "Focus"}</button>
+            <button className="mode-button hide-mobile" type="button" aria-pressed={!learnerMode} onClick={() => setLearnerMode(!learnerMode)}><GraduationCap size={15} /> {learnerMode ? "Focus view" : "Exit focus"}</button>
             <span className="level-pill hide-mobile"><Trophy size={14} /> L{level} · {xp} XP</span>
             <button className="menu-button" type="button" aria-label="Toggle navigation" onClick={() => setMobileNavOpen(!mobileNavOpen)}>{mobileNavOpen ? <X size={19} /> : <Menu size={19} />}</button>
           </div>
@@ -544,23 +586,22 @@ export default function Home() {
               </div>
             </div>
             <div className="editor-signal"><span><i /> {language === "JavaScript" ? "Isolated browser execution" : "Guided preview · secure runner ready"}</span><span>{workspaceNotice || (copied ? "Code copied" : activeMeta.version)}</span></div>
-            <div className="editor-canvas">{isRunning && <div className="scan-line" />}<CodeLines code={code} errorLine={runState === "error" ? result?.line : null} /><textarea className="code-input" value={code} onChange={(event) => { setCode(event.target.value); setRunState("idle"); setShowAnswer(false); setWorkspaceNotice(""); setTestResults(null); }} onKeyDown={(event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); runCode(); } }} spellCheck={false} aria-label="Code editor" /></div>
+            <div className="editor-canvas">{isRunning && <div className="scan-line" />}<CodeLines code={code} errorLine={runState === "error" ? result?.line : null} /><textarea className="code-input" value={code} onChange={(event) => { setCode(event.target.value); setRunState("idle"); setShowHint(false); setShowAnswer(false); setWorkspaceNotice(""); setTestResults(null); }} onKeyDown={(event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); runCode(); } }} spellCheck={false} aria-label="Code editor" /></div>
             <div className="editor-bottom"><span>UTF-8</span><span>Spaces: 4</span><span>Ln {result?.line ?? codeLines}</span><button type="button" className="run-main" onClick={runCode} disabled={isRunning}>{isRunning ? <span className="spinner" /> : <Play size={14} fill="currentColor" />}{isRunning ? "Scanning…" : "Run diagnosis"}<kbd>⌘↵</kbd></button></div>
           </div>
 
-          <aside className={"diagnostic-panel glass-panel state-" + runState}>
+          <aside className={"diagnostic-panel glass-panel state-" + runState} aria-live="polite" aria-busy={isRunning}>
             <div className="diagnostic-head"><div><span className="section-tag">DIAGNOSTIC CONSOLE</span><h2>{statusLabel}</h2></div><span className={"status-orb " + (isRunning ? "running" : runState)}>{isRunning ? <span className="spinner" /> : runState === "fixed" ? <Check size={17} /> : runState === "error" ? <X size={17} /> : <Terminal size={17} />}</span></div>
             {isRunning ? <div className="diagnostic-loading"><div className="pulse-bars"><i /><i /><i /><i /><i /></div><strong>Inspecting structure and test contract</strong><span>Validating input · tracing syntax · preparing cases</span></div> :
             runState === "idle" ? <div className="diagnostic-empty"><Sparkles size={24} /><strong>Your diagnosis will appear here</strong><p>Run the code to receive a plain-language explanation, a focused hint, and test evidence.</p><button type="button" onClick={runCode}>Start diagnosis <ArrowRight size={14} /></button></div> :
-            runState === "fixed" ? <div className="diagnostic-success"><div className="success-ring"><Check size={28} /></div><span className="section-tag">OUTPUT VERIFIED</span><pre>{result?.stdout || "Check completed successfully."}</pre><p>{result?.explanation || "The current check passed."}</p><div className="success-meta"><span>{result?.executionTimeMs ?? 1}ms</span><span>{testResults ? testResults.passed + "/" + testResults.total + " tests" : "Structure passed"}</span></div></div> :
+            runState === "fixed" ? <div className="diagnostic-success"><div className="success-ring"><Check size={24} /></div><div className="success-copy"><span className="section-tag">OUTPUT VERIFIED</span><p>{result?.explanation || "The current check passed."}</p></div><pre>{result?.stdout || "Check completed successfully."}</pre><div className="success-meta"><span>{result?.executionTimeMs ?? 1}ms</span><span>{testResults ? testResults.passed + "/" + testResults.total + " tests" : "Structure passed"}</span></div></div> :
             <div className="diagnostic-error">
               <div className="error-summary"><span>{result?.errorType ?? "CodeError"}</span><strong>{result?.line ? "Line " + result.line : "Review required"}</strong></div>
               <p className="stderr">{result?.stderr || "The checker found an issue that needs attention."}</p>
-              <div className="diagnosis-block"><span><Sparkles size={13} /> What happened</span><p>{aiExplanation?.whatHappened || result?.explanation}</p></div>
-              <div className="hint-block"><span><Lightbulb size={13} /> Your next move</span><p>{aiExplanation?.hint || result?.hint}</p></div>
               {learnerMode && <div className="concept-chip"><CircleHelp size={13} /> Concept: {aiExplanation?.concept || result?.errorType || "Debugging"}</div>}
-              {language === "Python" && activeChallenge !== null && challenges[activeChallenge]?.id === "py-paren" && <div className="fix-actions"><button type="button" onClick={() => setShowAnswer(!showAnswer)}><WandSparkles size={14} /> {showAnswer ? "Hide repair" : "Reveal repair"}</button>{showAnswer && <button className="apply-repair" type="button" onClick={applyFix}>Apply fix <ArrowRight size={14} /></button>}</div>}
-              {showAnswer && <div className="mini-diff"><div><span>−</span><code>print(message</code></div><div><span>+</span><code>print(message)</code></div></div>}
+              {!showHint ? <button className="learning-action hint-action" type="button" onClick={() => setShowHint(true)}><Lightbulb size={14} /> Give me a hint</button> : <div className="hint-block"><span><Lightbulb size={13} /> Hint</span><p>{progressiveHint}</p></div>}
+              {showHint && !showAnswer && <button className="learning-action answer-action" type="button" onClick={() => setShowAnswer(true)}><WandSparkles size={14} /> Show the solution</button>}
+              {showAnswer && <div className="answer-reveal"><div className="diagnosis-block"><span><Sparkles size={13} /> Solution explained</span><p>{aiExplanation?.whatHappened || result?.explanation}</p><p className="repair-guidance">{aiExplanation?.hint || result?.hint}</p></div>{language === "Python" && activeChallenge !== null && challenges[activeChallenge]?.id === "py-paren" && <><div className="mini-diff"><div><span>−</span><code>print(message</code></div><div><span>+</span><code>print(message)</code></div></div><button className="apply-repair" type="button" onClick={applyFix}>Apply this fix <ArrowRight size={14} /></button></>}</div>}
             </div>}
           </aside>
         </section>
@@ -598,7 +639,7 @@ export default function Home() {
         </section>
 
         <footer className="dt-footer" id="about">
-          <div className="footer-brand"><AppMark /><span className="version-badge">v3.0</span></div>
+          <div className="footer-brand"><AppMark /><span className="version-badge">v3.2</span></div>
           <div className="footer-about"><strong>Built by Md. Iftee Raiyan</strong><span>A test-driven workspace for learning how software fails—and how to repair it.</span></div>
           <div className="footer-links"><a href="#workspace">Workbench</a><a href="#tests">Tests</a><a href="https://github.com/MdIfteeRaiyan/DebugTest" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div>
         </footer>

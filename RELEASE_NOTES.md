@@ -1,5 +1,22 @@
 # DebugTest release notes
 
+## 3.2.0 — Combined workflow reliability release
+
+- Fixed a state mismatch where the diagnostic console could report success while a test case had failed.
+- Added language-aware expected output when switching languages or loading challenges.
+- Added a true Focus view that removes secondary learning sections during active debugging.
+- Added visible keyboard focus styling and live diagnostic status announcements.
+- Combined the v3 interface, progressive hints, test workflow, twelve-language paths, metadata, and deployment documentation in one release.
+
+## 3.1.0 — Progressive learning and interface polish
+
+- Fixed the diagnostic header status icon alignment on narrow screens.
+- Removed unnecessary empty space from successful diagnostic cards.
+- Increased contrast and text size for diagnostic explanations and output.
+- Changed error guidance to a progressive sequence: evidence → optional hint → optional solution.
+- Kept repair instructions and automatic fixes hidden until the learner explicitly reveals them.
+- Simplified success and error states for a cleaner, more premium workbench.
+
 ## 3.0.0 — DebugTest diagnostic workflow
 
 - Replaced the complete interface with a focused Write → Scan → Diagnose → Test → Resolve workflow.

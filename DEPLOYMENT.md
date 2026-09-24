@@ -5,13 +5,13 @@
 Upload the **contents** of this project directly to the GitHub repository root.
 `package.json`, `vercel.json`, `client`, and `server` must be visible at the top
 level of the repository. Do not upload them inside another `DebugTest` folder.
-After deployment, the page footer must show `v3.0`.
+After deployment, the page footer must show `v3.2`.
 
 This document separates what is ready now from what must be completed before presenting DebugTest as a real online compiler.
 
 ## Current launch status
 
-The current v3.0 workspace is safe to host as a **product preview**. It includes a server-side adapter for an external isolated runner and falls back to clearly labelled guided behavior when that runner is not configured. It never compiles arbitrary code inside Vercel.
+The current v3.2 workspace is safe to host as a **product preview**. It includes a server-side adapter for an external isolated runner and falls back to clearly labelled guided behavior when that runner is not configured. It never compiles arbitrary code inside Vercel.
 
 Do not advertise the current deployment as a production compiler until the execution items below are complete.
 

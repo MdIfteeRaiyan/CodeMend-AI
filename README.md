@@ -1,4 +1,4 @@
-# DebugTest v3.0
+# DebugTest v3.2
 
 **Secure, Test-Driven Coding Debugger & Learning Assistant**
 
@@ -6,7 +6,7 @@ DebugTest is a student-first coding workspace created by **Md. Iftee Raiyan**. I
 
 > **Core philosophy:** Don't just fix the code. Understand the error. Learn from the mistake.
 
-## Current milestone: v3.0 diagnostic workflow
+## Current milestone: v3.2 combined premium workflow
 
 DebugTest v3 introduces a completely rebuilt interface around one focused loop:
 **write, scan, diagnose, test, resolve**. The release includes:
@@ -41,6 +41,7 @@ DebugTest v3 introduces a completely rebuilt interface around one focused loop:
 - Purpose-built motion system with scan, orbit, loading, success, and reduced-motion states
 - Five-stage debugging workflow with an integrated diagnostic console
 - New DebugTest identity, app mark, social metadata, install icons, and launch copy
+- Progressive learning flow that reveals a hint first and keeps the solution hidden until requested
 
 The current browser prototype uses deterministic local guided checks so it is safe to preview publicly. It **does not execute arbitrary user code on the web server** and does not pretend that guided output is a complete compiler result.
 
@@ -69,6 +70,8 @@ Arbitrary code execution must stay behind a dedicated sandbox boundary with reso
 
 - **v1.x — Learning workspace:** editor, guided practice, twelve languages, twenty-four challenges, XP, streaks, drafts, sharing, and proficiency. **Complete.**
 - **v3.0 — Diagnostic workflow:** new DebugTest identity, rebuilt interface and motion system, editable test cases, protected execution adapter, normalized results, and creator profile. **Complete.**
+- **v3.1 — Guided reveal:** compact diagnostics, clearer text, hint-first learning, and learner-controlled solutions. **Complete.**
+- **v3.2 — Combined reliability:** consistent test verdicts, language-aware expected output, Focus view, and accessibility polish. **Complete.**
 - **Next — Production runner:** deploy hardened containers or microVMs, durable rate limits, job queues, and abuse monitoring.
 - **Later — Adaptive learning:** richer concepts, difficulty adaptation, and optional accounts.
 

@@ -13,7 +13,8 @@ describe("public launch readiness contract", () => {
     expect(homePage).toContain("Guided preview · secure runner ready");
     expect(homePage).toContain("Prove the fix, case by case.");
     expect(homePage).toContain("Run diagnosis");
-    expect(homePage).toContain("Reveal repair");
+    expect(homePage).toContain("Give me a hint");
+    expect(homePage).toContain("Show the solution");
     expect(homePage).toContain("Debug the cause.");
   });
 
