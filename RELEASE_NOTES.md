@@ -1,5 +1,15 @@
 # DebugTest release notes
 
+## 4.0.0 — Guided performance release
+
+- Added a five-step interactive walkthrough covering the workflow, editor, diagnostics, tests, and progress.
+- Added a lightweight first-visit tour invitation and a persistent Tour control.
+- Added Android safe-area handling, dynamic viewport sizing, larger touch targets, and mobile-friendly tour controls.
+- Disabled expensive background blur on mobile while retaining the premium glass appearance on capable desktops.
+- Added viewport rendering containment for lower-page sections to reduce initial layout and paint work.
+- Added animated active workflow states and diagnostic success/error ambience using transform, opacity, and shadow only.
+- Added a distraction-free Focus view, progressive hints, reliable test verdicts, and all earlier v3 improvements.
+
 ## 3.2.0 — Combined workflow reliability release
 
 - Fixed a state mismatch where the diagnostic console could report success while a test case had failed.

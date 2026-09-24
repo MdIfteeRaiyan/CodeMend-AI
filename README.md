@@ -1,4 +1,4 @@
-# DebugTest v3.2
+# DebugTest v4.0
 
 **Secure, Test-Driven Coding Debugger & Learning Assistant**
 
@@ -6,7 +6,7 @@ DebugTest is a student-first coding workspace created by **Md. Iftee Raiyan**. I
 
 > **Core philosophy:** Don't just fix the code. Understand the error. Learn from the mistake.
 
-## Current milestone: v3.2 combined premium workflow
+## Current milestone: v4.0 guided performance release
 
 DebugTest v3 introduces a completely rebuilt interface around one focused loop:
 **write, scan, diagnose, test, resolve**. The release includes:
@@ -72,6 +72,7 @@ Arbitrary code execution must stay behind a dedicated sandbox boundary with reso
 - **v3.0 — Diagnostic workflow:** new DebugTest identity, rebuilt interface and motion system, editable test cases, protected execution adapter, normalized results, and creator profile. **Complete.**
 - **v3.1 — Guided reveal:** compact diagnostics, clearer text, hint-first learning, and learner-controlled solutions. **Complete.**
 - **v3.2 — Combined reliability:** consistent test verdicts, language-aware expected output, Focus view, and accessibility polish. **Complete.**
+- **v4.0 — Guided performance:** interactive walkthrough, touch-first Android controls, safe-area support, lightweight viewport rendering, and richer state animation. **Complete.**
 - **Next — Production runner:** deploy hardened containers or microVMs, durable rate limits, job queues, and abuse monitoring.
 - **Later — Adaptive learning:** richer concepts, difficulty adaptation, and optional accounts.
 

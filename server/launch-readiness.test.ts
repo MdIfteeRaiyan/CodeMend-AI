@@ -15,6 +15,8 @@ describe("public launch readiness contract", () => {
     expect(homePage).toContain("Run diagnosis");
     expect(homePage).toContain("Give me a hint");
     expect(homePage).toContain("Show the solution");
+    expect(homePage).toContain("Take the 60-second tour");
+    expect(homePage).toContain("Focus view");
     expect(homePage).toContain("Debug the cause.");
   });
 

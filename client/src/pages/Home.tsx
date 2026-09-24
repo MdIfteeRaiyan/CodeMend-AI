@@ -119,6 +119,14 @@ const languageMeta: Record<Language, { tone: string; version: string; extension:
   Ruby: { tone: "#ef7777", version: "3.3", extension: "rb" },
 };
 
+const tourSteps = [
+  { selector: ".dt-hero", eyebrow: "01 · Welcome", title: "Understand before you repair", body: "DebugTest follows one learning loop: inspect the code, discover the cause, test the change, and prove the result." },
+  { selector: ".code-editor", eyebrow: "02 · Workbench", title: "Write or import code", body: "Choose a language, edit safely, import a source file, or use Ctrl/Command + Enter to run a diagnosis." },
+  { selector: ".diagnostic-panel", eyebrow: "03 · Guidance", title: "Hints stay learner-controlled", body: "The console shows evidence first. Ask for a hint when needed, then reveal the solution only when you are ready." },
+  { selector: "#tests", eyebrow: "04 · Test Studio", title: "Prove every repair", body: "Add inputs and expected outputs. A solution is only clear when its behavior matches the test contract." },
+  { selector: "#practice", eyebrow: "05 · Progress", title: "Build a debugging habit", body: "Practice across twelve languages, grow proficiency, and keep your progress privately on this device." },
+] as const;
+
 function suggestedOutput(language: Language, code: string) {
   const calledName = code.match(/greet\(["']([^"']+)["']\)/)?.[1];
   if (calledName && language === "Ruby" && code.includes("#{name}")) return `Hello, ${calledName}!`;
@@ -285,6 +293,8 @@ export default function Home() {
   const [challengeFilter, setChallengeFilter] = useState<"All" | Language>("All");
   const [copied, setCopied] = useState(false);
   const [workspaceNotice, setWorkspaceNotice] = useState("");
+  const [tourStep, setTourStep] = useState<number | null>(null);
+  const [showTourInvite, setShowTourInvite] = useState(false);
   const [testCases, setTestCases] = useState<TestCase[]>([createTestCase(1)]);
   const [testResults, setTestResults] = useState<TestExecutionResult | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -297,6 +307,7 @@ export default function Home() {
       if (savedDays) setPracticeDays(JSON.parse(savedDays) as string[]);
       const savedChallenges = window.localStorage.getItem("debugtest-completed-challenges") ?? window.localStorage.getItem("codemend-completed-challenges");
       if (savedChallenges) setCompletedChallenges(JSON.parse(savedChallenges) as string[]);
+      setShowTourInvite(!window.localStorage.getItem("debugtest-tour-complete"));
       const shared = new URLSearchParams(window.location.hash.slice(1)).get("code");
       if (shared) {
         const payload = JSON.parse(decodeSharedCode(shared)) as { language: Language; code: string };
@@ -311,6 +322,12 @@ export default function Home() {
       // Progress storage is optional; the checker still works in private browsing.
     }
   }, []);
+
+  useEffect(() => {
+    if (tourStep === null) return;
+    const target = document.querySelector(tourSteps[tourStep].selector);
+    window.setTimeout(() => target?.scrollIntoView({ behavior: "smooth", block: "center" }), 80);
+  }, [tourStep]);
 
   useEffect(() => {
     try { window.localStorage.setItem(`debugtest-draft-${language}`, code); } catch { /* optional */ }
@@ -517,6 +534,18 @@ export default function Home() {
     ["04", "Test", "Compare every case"],
     ["05", "Resolve", "Prove the repair"],
   ];
+  const startTour = () => {
+    setLearnerMode(true);
+    setMobileNavOpen(false);
+    setShowTourInvite(false);
+    setTourStep(0);
+  };
+  const closeTour = (completed = false) => {
+    setTourStep(null);
+    if (completed) {
+      try { window.localStorage.setItem("debugtest-tour-complete", "true"); } catch { /* optional */ }
+    }
+  };
   const progressiveHint = result?.errorType === "DelimiterError"
     ? `Inspect the opening and closing symbols around line ${result.line ?? "the highlighted area"}. One pair is incomplete or mismatched.`
     : result?.errorType === "SyntaxError"
@@ -538,6 +567,7 @@ export default function Home() {
             <a href="#workspace">Workbench</a><a href="#workflow">Workflow</a><a href="#tests">Tests</a><a href="#practice">Practice</a>
           </nav>
           <div className="dt-header-actions">
+            <button className="tour-button" type="button" onClick={startTour} aria-label="Open product walkthrough"><Compass size={15} /><span>Tour</span></button>
             <button className="mode-button hide-mobile" type="button" aria-pressed={!learnerMode} onClick={() => setLearnerMode(!learnerMode)}><GraduationCap size={15} /> {learnerMode ? "Focus view" : "Exit focus"}</button>
             <span className="level-pill hide-mobile"><Trophy size={14} /> L{level} · {xp} XP</span>
             <button className="menu-button" type="button" aria-label="Toggle navigation" onClick={() => setMobileNavOpen(!mobileNavOpen)}>{mobileNavOpen ? <X size={19} /> : <Menu size={19} />}</button>
@@ -546,7 +576,7 @@ export default function Home() {
       </header>
 
       <main className="dt-main" id="workspace">
-        <section className="dt-hero">
+        <section className={"dt-hero " + (tourStep === 0 ? "tour-highlight" : "")}>
           <div className="hero-content">
             <div className="hero-label"><span /> Multi-language debugging workspace</div>
             <h1>Debug the cause.<br /><em>Test the solution.</em></h1>
@@ -572,7 +602,7 @@ export default function Home() {
         </section>
 
         <section className="workbench-grid">
-          <div className="code-editor glass-panel">
+          <div className={"code-editor glass-panel " + (tourStep === 1 ? "tour-highlight" : "")}>
             <div className="workbench-bar">
               <div className="file-identity"><i style={{ background: activeMeta.tone }} /><span>main.{activeMeta.extension}</span><small>{codeLines} lines</small></div>
               <div className="editor-actions">
@@ -590,7 +620,7 @@ export default function Home() {
             <div className="editor-bottom"><span>UTF-8</span><span>Spaces: 4</span><span>Ln {result?.line ?? codeLines}</span><button type="button" className="run-main" onClick={runCode} disabled={isRunning}>{isRunning ? <span className="spinner" /> : <Play size={14} fill="currentColor" />}{isRunning ? "Scanning…" : "Run diagnosis"}<kbd>⌘↵</kbd></button></div>
           </div>
 
-          <aside className={"diagnostic-panel glass-panel state-" + runState} aria-live="polite" aria-busy={isRunning}>
+          <aside className={"diagnostic-panel glass-panel state-" + runState + (tourStep === 2 ? " tour-highlight" : "")} aria-live="polite" aria-busy={isRunning}>
             <div className="diagnostic-head"><div><span className="section-tag">DIAGNOSTIC CONSOLE</span><h2>{statusLabel}</h2></div><span className={"status-orb " + (isRunning ? "running" : runState)}>{isRunning ? <span className="spinner" /> : runState === "fixed" ? <Check size={17} /> : runState === "error" ? <X size={17} /> : <Terminal size={17} />}</span></div>
             {isRunning ? <div className="diagnostic-loading"><div className="pulse-bars"><i /><i /><i /><i /><i /></div><strong>Inspecting structure and test contract</strong><span>Validating input · tracing syntax · preparing cases</span></div> :
             runState === "idle" ? <div className="diagnostic-empty"><Sparkles size={24} /><strong>Your diagnosis will appear here</strong><p>Run the code to receive a plain-language explanation, a focused hint, and test evidence.</p><button type="button" onClick={runCode}>Start diagnosis <ArrowRight size={14} /></button></div> :
@@ -606,7 +636,7 @@ export default function Home() {
           </aside>
         </section>
 
-        <section className="test-studio glass-panel" id="tests">
+        <section className={"test-studio glass-panel " + (tourStep === 3 ? "tour-highlight" : "")} id="tests">
           <div className="studio-heading"><div><span className="section-tag"><ShieldCheck size={13} /> TEST STUDIO</span><h2>Prove the fix, case by case.</h2><p>Give each case its own input and expected output. DebugTest compares results after ignoring trailing whitespace.</p></div><span className="case-counter">{testCases.length}/6 cases</span></div>
           <div className="test-grid">
             {testCases.map((test, index) => {
@@ -622,7 +652,7 @@ export default function Home() {
           <div className="studio-footer"><span>{testResults ? testResults.message : "Cases run with your next diagnosis."}</span><button type="button" onClick={runCode} disabled={isRunning}><Play size={13} /> Run all cases</button></div>
         </section>
 
-        <section className="insight-grid" id="practice">
+        <section className={"insight-grid " + (tourStep === 4 ? "tour-highlight" : "")} id="practice">
           <article className="insight-card progress-insight"><div className="insight-title"><span><Target size={14} /> PROGRESS</span><strong>Level {level}</strong></div><div className="level-display"><b>{xp}</b><span>XP earned</span></div><div className="level-track"><i style={{ width: levelProgress + "%" }} /></div><div className="stat-pair"><span><b>{completedChallenges.length}</b> solved</span><span><b>{100 - levelProgress}</b> XP to L{level + 1}</span></div></article>
           <article className="insight-card daily-insight"><div className="insight-title"><span><Zap size={14} /> DAILY LOOP</span><strong>{streak} day streak</strong></div><div className="goal-orbs">{[0, 1, 2].map((item) => <i key={item} className={item < dailyPassed ? "complete" : ""}>{item < dailyPassed ? <Check size={13} /> : item + 1}</i>)}</div><p>{dailyPassed === 3 ? "Daily target complete. Strong work." : (3 - dailyPassed) + " successful checks left today."}</p>{recommendedIndex >= 0 && <button type="button" onClick={() => loadChallenge(recommendedIndex)}>Continue with {challenges[recommendedIndex].language} <ArrowRight size={14} /></button>}</article>
           <article className="insight-card history-insight"><div className="insight-title"><span><History size={14} /> RECENT RUNS</span>{history.length > 0 && <button type="button" onClick={() => { setHistory([]); window.localStorage.removeItem("debugtest-history"); }}>Clear</button>}</div><div className="compact-history">{history.length === 0 ? <p>No runs yet. Your last six diagnoses stay on this device.</p> : history.slice(0, 4).map((item, index) => <div key={item.at + index}><span>{item.language}</span><i className={item.status === "Passed" ? "pass" : "review"}>{item.status}</i></div>)}</div></article>
@@ -639,11 +669,13 @@ export default function Home() {
         </section>
 
         <footer className="dt-footer" id="about">
-          <div className="footer-brand"><AppMark /><span className="version-badge">v3.2</span></div>
+          <div className="footer-brand"><AppMark /><span className="version-badge">v4.0</span></div>
           <div className="footer-about"><strong>Built by Md. Iftee Raiyan</strong><span>A test-driven workspace for learning how software fails—and how to repair it.</span></div>
           <div className="footer-links"><a href="#workspace">Workbench</a><a href="#tests">Tests</a><a href="https://github.com/MdIfteeRaiyan/DebugTest" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div>
         </footer>
       </main>
+      {showTourInvite && tourStep === null && <aside className="tour-invite" aria-label="DebugTest walkthrough"><button className="tour-dismiss" type="button" aria-label="Dismiss walkthrough invitation" onClick={() => setShowTourInvite(false)}><X size={15} /></button><span><Compass size={15} /> NEW HERE?</span><strong>Take the 60-second tour</strong><p>See the complete debugging workflow before your first run.</p><button className="tour-start" type="button" onClick={startTour}>Start walkthrough <ArrowRight size={14} /></button></aside>}
+      {tourStep !== null && <><div className="tour-shade" aria-hidden="true" /><section className="tour-card" role="dialog" aria-modal="true" aria-labelledby="tour-title"><div className="tour-card-top"><span>{tourSteps[tourStep].eyebrow}</span><button type="button" aria-label="Close walkthrough" onClick={() => closeTour(false)}><X size={16} /></button></div><div className="tour-progress" aria-label={`Step ${tourStep + 1} of ${tourSteps.length}`}>{tourSteps.map((_, index) => <i className={index <= tourStep ? "active" : ""} key={index} />)}</div><h2 id="tour-title">{tourSteps[tourStep].title}</h2><p>{tourSteps[tourStep].body}</p><div className="tour-controls"><button type="button" disabled={tourStep === 0} onClick={() => setTourStep((current) => current === null ? 0 : Math.max(0, current - 1))}>Back</button><button className="tour-next" type="button" onClick={() => tourStep === tourSteps.length - 1 ? closeTour(true) : setTourStep(tourStep + 1)}>{tourStep === tourSteps.length - 1 ? "Finish tour" : "Next step"} <ArrowRight size={14} /></button></div></section></>}
     </div>
   );
 }

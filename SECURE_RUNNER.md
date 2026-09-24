@@ -1,6 +1,6 @@
 # Secure runner setup
 
-DebugTest v3.2 never compiles untrusted code inside the Vercel function. The browser sends a validated request to `/api/execute`; that server-side adapter forwards one test at a time to an isolated execution provider.
+DebugTest v4.0 never compiles untrusted code inside the Vercel function. The browser sends a validated request to `/api/execute`; that server-side adapter forwards one test at a time to an isolated execution provider.
 
 ## Required Vercel environment variables
 

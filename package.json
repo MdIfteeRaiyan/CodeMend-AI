@@ -1,6 +1,6 @@
 {
   "name": "debugtest",
-  "version": "3.2.0",
+  "version": "4.0.0",
   "description": "A test-driven debugging workspace for learning why code fails, repairing it, and proving the fix.",
   "author": "Md. Iftee Raiyan",
   "homepage": "https://debugtest-ai-debugger.vercel.app/",
