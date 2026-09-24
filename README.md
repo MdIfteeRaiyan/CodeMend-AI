@@ -1,14 +1,15 @@
-# CodeMend v2.0
+# DebugTest v3.0
 
 **Secure, Test-Driven Coding Debugger & Learning Assistant**
 
-CodeMend is a student-first coding workspace created by **Md. Iftee Raiyan**. It helps learners understand programming mistakes, verify fixes with test cases, and grow across twelve language paths.
+DebugTest is a student-first coding workspace created by **Md. Iftee Raiyan**. It helps learners understand programming mistakes, verify fixes with test cases, and grow across twelve language paths.
 
 > **Core philosophy:** Don't just fix the code. Understand the error. Learn from the mistake.
 
-## Current milestone: v2.0 secure runner and test lab
+## Current milestone: v3.0 diagnostic workflow
 
-The first complete product slice includes:
+DebugTest v3 introduces a completely rebuilt interface around one focused loop:
+**write, scan, diagnose, test, resolve**. The release includes:
 
 - Up to six editable test cases with standard input and expected output
 - Individual pass/fail/error feedback and exact normalized-output comparison
@@ -30,21 +31,24 @@ The first complete product slice includes:
 - Source-code download using the correct language file extension
 - Real JavaScript execution in a network-disabled browser worker with a 1.5-second timeout
 - Automatic per-language drafts, source-file import, and shareable code links
-- Original CodeMend favicon, app mark, install icons, and web-app manifest
+- Original DebugTest favicon, app mark, install icons, and web-app manifest
 - Per-language proficiency progress with Beginner, Developing, and Proficient states
 - Three-check daily goal and automatic recommended-next-challenge guidance
 - One-click code copy, reset, and keyboard run shortcut
 - Learner mode copy and analogy card
 - Mobile-first responsive layout
-- Dark workbench visual system for a credible developer-tool experience
+- Dark violet-and-cyan workbench visual system for a credible developer-tool experience
+- Purpose-built motion system with scan, orbit, loading, success, and reduced-motion states
+- Five-stage debugging workflow with an integrated diagnostic console
+- New DebugTest identity, app mark, social metadata, install icons, and launch copy
 
 The current browser prototype uses deterministic local guided checks so it is safe to preview publicly. It **does not execute arbitrary user code on the web server** and does not pretend that guided output is a complete compiler result.
 
-For the complete release gates, Vercel setup notes, runner security requirements, and device-testing checklist, see [`DEPLOYMENT.md`](./DEPLOYMENT.md). The current site should be described publicly as a CodeMend product preview until those gates are complete.
+For the complete release gates, Vercel setup notes, runner security requirements, and device-testing checklist, see [`DEPLOYMENT.md`](./DEPLOYMENT.md). The current site should be described publicly as a DebugTest product preview until those gates are complete.
 
 ## Architecture direction
 
-CodeMend is scaffolded as a Vite + React + TypeScript + Tailwind + Express + tRPC application with Manus OAuth, database, storage, and server-side integration hooks available for future milestones.
+DebugTest is scaffolded as a Vite + React + TypeScript + Tailwind + Express + tRPC application with Manus OAuth, database, storage, and server-side integration hooks available for future milestones.
 
 The planned public architecture is:
 
@@ -64,7 +68,7 @@ Arbitrary code execution must stay behind a dedicated sandbox boundary with reso
 ## Roadmap
 
 - **v1.x — Learning workspace:** editor, guided practice, twelve languages, twenty-four challenges, XP, streaks, drafts, sharing, and proficiency. **Complete.**
-- **v2.0 — Test-driven execution:** editable test cases, protected execution adapter, normalized results, secure-runner documentation, and creator profile. **Complete.**
+- **v3.0 — Diagnostic workflow:** new DebugTest identity, rebuilt interface and motion system, editable test cases, protected execution adapter, normalized results, and creator profile. **Complete.**
 - **Next — Production runner:** deploy hardened containers or microVMs, durable rate limits, job queues, and abuse monitoring.
 - **Later — Adaptive learning:** richer concepts, difficulty adaptation, and optional accounts.
 
@@ -94,4 +98,4 @@ preview does not require database, OAuth, AI, or code-runner credentials.
 
 ## Product positioning
 
-CodeMend is intentionally more specific than an online compiler or generic AI code generator. Its product identity is an **AI debugging tutor for students**: a tool that helps learners build debugging judgment through explanation, hints, and deliberate practice.
+DebugTest is intentionally more specific than an online compiler or generic AI code generator. Its product identity is an **AI debugging tutor for students**: a tool that helps learners build debugging judgment through explanation, hints, and deliberate practice.

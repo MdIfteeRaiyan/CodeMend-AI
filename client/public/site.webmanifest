@@ -1,13 +1,13 @@
 {
-  "name": "CodeMend — Debug, understand, learn",
-  "short_name": "CodeMend",
-  "description": "A guided coding debugger and learning workspace.",
+  "name": "DebugTest — Debug the cause. Test the solution.",
+  "short_name": "DebugTest",
+  "description": "A multi-language debugging workbench with guided diagnosis and test-case verification.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0b0e0e",
-  "theme_color": "#0b0e0e",
+  "background_color": "#07080d",
+  "theme_color": "#07080d",
   "icons": [
-    { "src": "/codemend-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/codemend-512.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/debugtest-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/debugtest-512.png", "sizes": "512x512", "type": "image/png" }
   ]
 }

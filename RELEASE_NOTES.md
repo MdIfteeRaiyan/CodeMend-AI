@@ -1,4 +1,15 @@
-# CodeMend release notes
+# DebugTest release notes
+
+## 3.0.0 — DebugTest diagnostic workflow
+
+- Replaced the complete interface with a focused Write → Scan → Diagnose → Test → Resolve workflow.
+- Introduced a new graphite, violet, and cyan design system with an original DebugTest identity.
+- Added purposeful scan, orbit, loading, success, and transition animations with reduced-motion support.
+- Rebuilt the workspace around a language-aware editor, diagnostic console, and integrated Test Studio.
+- Preserved support for twelve programming languages and twenty-four guided challenges.
+- Added migration fallbacks so existing local progress and drafts from the previous release remain available.
+- Updated application metadata, install assets, GitHub and Vercel handoff instructions, and LinkedIn launch copy.
+- Added new responsive layouts and clearer preview-versus-secure-runner status messaging.
 
 ## 2.0.0 — Secure runner and verification lab
 
@@ -28,10 +39,10 @@
 
 ## 1.5.0 — Brand identity
 
-- Added an original CodeMend logo optimized for browser-tab sizes.
+- Added an original DebugTest logo optimized for browser-tab sizes.
 - Added SVG, favicon, 192px, and 512px brand assets.
 - Added web-app manifest and mobile home-screen metadata.
-- Replaced the generic header icon with the CodeMend mark.
+- Replaced the generic header icon with the DebugTest mark.
 - Removed development-only public assets from production builds.
 
 ## 1.4.0 — Productive workspace
@@ -55,7 +66,7 @@
 - Added JavaScript, TypeScript, and C# for six supported languages in total.
 - Expanded the practice lab from three to six selectable debugging challenges.
 - Replaced the decorative streak with a real daily streak stored in the browser.
-- Kept CodeMend guest-first: no account is required until cloud sync becomes useful.
+- Kept DebugTest guest-first: no account is required until cloud sync becomes useful.
 
 ## 1.1.0 — Guided practice upgrade
 
@@ -67,7 +78,7 @@
 
 ## What changed
 
-- Renamed the product from CodeLens to CodeMend.
+- Renamed the product from CodeLens to DebugTest.
 - Added a Vercel configuration that publishes the real Vite frontend from
   `dist/public` instead of exposing the Node server bundle.
 - Made the public preview fully usable without database, OAuth, AI, or runner

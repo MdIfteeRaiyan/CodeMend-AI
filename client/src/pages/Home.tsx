@@ -56,16 +56,16 @@ const createTestCase = (index: number): TestCase => ({
 
 const starterCode: Record<Language, string> = {
   Python: `def greet(name):\n    message = "Hello, " + name\n    print(message\n\ngreet("Mina")`,
-  C: `#include <stdio.h>\n\nint main(void) {\n  printf("Hello, CodeMend!\\n");\n  return 0;\n}`,
-  "C++": `#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Hello, CodeMend!" << endl;\n  return 0;\n}`,
-  Java: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, CodeMend!");\n  }\n}`,
+  C: `#include <stdio.h>\n\nint main(void) {\n  printf("Hello, DebugTest!\\n");\n  return 0;\n}`,
+  "C++": `#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Hello, DebugTest!" << endl;\n  return 0;\n}`,
+  Java: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Hello, DebugTest!");\n  }\n}`,
   JavaScript: `function greet(name) {\n  const message = "Hello, " + name;\n  console.log(message);\n}\n\ngreet("Mina");`,
   TypeScript: `function greet(name: string): void {\n  const message: string = "Hello, " + name;\n  console.log(message);\n}\n\ngreet("Mina");`,
-  "C#": `using System;\n\nclass Program {\n  static void Main(string[] args) {\n    Console.WriteLine("Hello, CodeMend!");\n  }\n}`,
-  Go: `package main\n\nimport "fmt"\n\nfunc main() {\n  fmt.Println("Hello, CodeMend!")\n}`,
-  Rust: `fn main() {\n    println!("Hello, CodeMend!");\n}`,
+  "C#": `using System;\n\nclass Program {\n  static void Main(string[] args) {\n    Console.WriteLine("Hello, DebugTest!");\n  }\n}`,
+  Go: `package main\n\nimport "fmt"\n\nfunc main() {\n  fmt.Println("Hello, DebugTest!")\n}`,
+  Rust: `fn main() {\n    println!("Hello, DebugTest!");\n}`,
   PHP: `<?php\n\nfunction greet($name) {\n  echo "Hello, " . $name;\n}\n\ngreet("Mina");`,
-  Kotlin: `fun main() {\n  println("Hello, CodeMend!")\n}`,
+  Kotlin: `fun main() {\n  println("Hello, DebugTest!")\n}`,
   Ruby: `def greet(name)\n  puts "Hello, #{name}!"\nend\n\ngreet("Mina")`,
 };
 
@@ -74,7 +74,7 @@ const challenges: PracticeChallenge[] = [
   { id: "py-colon", title: "Restore the missing colon", language: "Python", level: "Intermediate", minutes: 4, xp: 30, code: `def is_even(number)\n    if number % 2 == 0:\n        print("Even")\n\nis_even(8)` },
   { id: "c-main", title: "Restore the C entry point", language: "C", level: "Beginner", minutes: 4, xp: 20, code: `#include <stdio.h>\n\nint start(void) {\n  printf("Hello!\\n");\n  return 0;\n}` },
   { id: "c-brace", title: "Close the C main block", language: "C", level: "Intermediate", minutes: 5, xp: 30, code: `#include <stdio.h>\n\nint main(void) {\n  printf("Keep learning!\\n");\n  return 0;` },
-  { id: "cpp-main", title: "Repair the entry point", language: "C++", level: "Beginner", minutes: 5, xp: 20, code: `#include <iostream>\nusing namespace std;\n\nint start() {\n  cout << "Hello, CodeMend!" << endl;\n  return 0;\n}` },
+  { id: "cpp-main", title: "Repair the entry point", language: "C++", level: "Beginner", minutes: 5, xp: 20, code: `#include <iostream>\nusing namespace std;\n\nint start() {\n  cout << "Hello, DebugTest!" << endl;\n  return 0;\n}` },
   { id: "cpp-brace", title: "Close the main block", language: "C++", level: "Intermediate", minutes: 5, xp: 30, code: `#include <iostream>\nusing namespace std;\n\nint main() {\n  cout << "Keep going!" << endl;` },
   { id: "java-brace", title: "Balance the class braces", language: "Java", level: "Intermediate", minutes: 6, xp: 30, code: `public class Main {\n  public static void main(String[] args) {\n    System.out.println("Keep learning!");\n  }` },
   { id: "java-main", title: "Find the missing main", language: "Java", level: "Beginner", minutes: 4, xp: 20, code: `public class Main {\n  public static void start(String[] args) {\n    System.out.println("Hello!");\n  }\n}` },
@@ -205,7 +205,7 @@ function runGuidedCheck(language: Language, code: string): ExecutionResult {
   const hasEntryPoint = language === "C" || language === "C++" ? /int\s+main\s*\(/i.test(code) : language === "C#" ? /static\s+void\s+Main\s*\(/.test(code) : language === "Go" ? /func\s+main\s*\(/.test(code) : language === "Rust" ? /fn\s+main\s*\(/.test(code) : language === "Kotlin" ? /fun\s+main\s*\(/.test(code) : /static\s+void\s+main\s*\(/.test(code);
   if (requiresEntryPoint && !hasEntryPoint) {
     const hint = language === "C" || language === "C++" ? "Add an int main() function." : language === "C#" ? "Add a static void Main(string[] args) method." : language === "Go" ? "Add a func main() function." : language === "Rust" ? "Add an fn main() function." : language === "Kotlin" ? "Add a fun main() function." : "Add a public static void main(String[] args) method.";
-    return finish({ status: "compile_error", stdout: "", stderr: "Program entry point not found", line: 1, errorType: "EntryPointError", explanation: `CodeMend could not find the ${language} program entry point.`, hint });
+    return finish({ status: "compile_error", stdout: "", stderr: "Program entry point not found", line: 1, errorType: "EntryPointError", explanation: `DebugTest could not find the ${language} program entry point.`, hint });
   }
   const output = code.match(/(?:printf\s*\(|cout\s*<<|System\.out\.println\s*\(|Console\.WriteLine\s*\(|console\.log\s*\(|fmt\.Println\s*\(|println!\s*\(|println\s*\(|echo\s+)[\s]*["']([^"']+)["']/)?.[1] ?? "Guided check passed.";
   return finish({ status: "success", stdout: `${output}\n`, stderr: "", line: null, errorType: null, explanation: "The guided structure check passed.", hint: "Connect a secure runner later for full compilation and runtime output." });
@@ -233,7 +233,7 @@ function runJavaScriptInWorker(code: string): Promise<ExecutionResult> {
     const workerUrl = URL.createObjectURL(new Blob([workerSource], { type: "text/javascript" }));
     const worker = new Worker(workerUrl);
     const finish = (result: ExecutionResult) => { worker.terminate(); URL.revokeObjectURL(workerUrl); resolve(result); };
-    const timeout = window.setTimeout(() => finish({ status: "timeout", language: "JavaScript", stdout: "", stderr: "Execution stopped after 1.5 seconds", line: null, errorType: "TimeoutError", explanation: "The program ran for too long, so CodeMend stopped the isolated browser worker.", hint: "Check for an infinite loop or reduce the amount of work.", executionTimeMs: 1500, isDemo: false }), 1500);
+    const timeout = window.setTimeout(() => finish({ status: "timeout", language: "JavaScript", stdout: "", stderr: "Execution stopped after 1.5 seconds", line: null, errorType: "TimeoutError", explanation: "The program ran for too long, so DebugTest stopped the isolated browser worker.", hint: "Check for an infinite loop or reduce the amount of work.", executionTimeMs: 1500, isDemo: false }), 1500);
     worker.onmessage = (event: MessageEvent<{ ok: boolean; output: string; name?: string; message?: string }>) => {
       window.clearTimeout(timeout);
       const elapsed = Math.max(1, Math.round(performance.now() - startedAt));
@@ -247,9 +247,9 @@ function runJavaScriptInWorker(code: string): Promise<ExecutionResult> {
 
 function AppMark() {
   return (
-    <div className="app-mark" aria-label="CodeMend">
-      <span className="app-mark-icon"><img src="/codemend-mark.svg" alt="" /></span>
-      <span>CodeMend</span>
+    <div className="app-mark" aria-label="DebugTest">
+      <span className="app-mark-icon"><img src="/debugtest-mark.svg" alt="" /></span>
+      <span>DebugTest</span>
     </div>
   );
 }
@@ -277,11 +277,11 @@ export default function Home() {
 
   useEffect(() => {
     try {
-      const saved = window.localStorage.getItem("codemend-history");
+      const saved = window.localStorage.getItem("debugtest-history") ?? window.localStorage.getItem("codemend-history");
       if (saved) setHistory(JSON.parse(saved) as SavedRun[]);
-      const savedDays = window.localStorage.getItem("codemend-practice-days");
+      const savedDays = window.localStorage.getItem("debugtest-practice-days") ?? window.localStorage.getItem("codemend-practice-days");
       if (savedDays) setPracticeDays(JSON.parse(savedDays) as string[]);
-      const savedChallenges = window.localStorage.getItem("codemend-completed-challenges");
+      const savedChallenges = window.localStorage.getItem("debugtest-completed-challenges") ?? window.localStorage.getItem("codemend-completed-challenges");
       if (savedChallenges) setCompletedChallenges(JSON.parse(savedChallenges) as string[]);
       const shared = new URLSearchParams(window.location.hash.slice(1)).get("code");
       if (shared) {
@@ -290,7 +290,7 @@ export default function Home() {
           setLanguage(payload.language); setCode(payload.code); setActiveChallenge(null); setWorkspaceNotice("Shared code loaded");
         }
       } else {
-        const draft = window.localStorage.getItem("codemend-draft-Python");
+        const draft = window.localStorage.getItem("debugtest-draft-Python") ?? window.localStorage.getItem("codemend-draft-Python");
         if (draft) setCode(draft);
       }
     } catch {
@@ -299,7 +299,7 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    try { window.localStorage.setItem(`codemend-draft-${language}`, code); } catch { /* optional */ }
+    try { window.localStorage.setItem(`debugtest-draft-${language}`, code); } catch { /* optional */ }
   }, [code, language]);
 
   const codeLines = useMemo(() => code.split("\n").length, [code]);
@@ -308,7 +308,7 @@ export default function Home() {
   const changeLanguage = (next: Language) => {
     setActiveChallenge(null);
     setLanguage(next);
-    setCode(window.localStorage.getItem(`codemend-draft-${next}`) ?? starterCode[next]);
+    setCode(window.localStorage.getItem(`debugtest-draft-${next}`) ?? window.localStorage.getItem(`codemend-draft-${next}`) ?? starterCode[next]);
     setRunState("idle");
     setResult(null);
     setAiExplanation(null);
@@ -382,9 +382,9 @@ export default function Home() {
       const nextCompleted = completedId ? Array.from(new Set([...completedChallenges, completedId])) : completedChallenges;
       setCompletedChallenges(nextCompleted);
       try {
-        window.localStorage.setItem("codemend-history", JSON.stringify(nextHistory));
-        window.localStorage.setItem("codemend-practice-days", JSON.stringify(nextDays));
-        window.localStorage.setItem("codemend-completed-challenges", JSON.stringify(nextCompleted));
+        window.localStorage.setItem("debugtest-history", JSON.stringify(nextHistory));
+        window.localStorage.setItem("debugtest-practice-days", JSON.stringify(nextDays));
+        window.localStorage.setItem("debugtest-completed-challenges", JSON.stringify(nextCompleted));
       } catch { /* optional */ }
       setIsRunning(false);
     }, 260);
@@ -444,7 +444,7 @@ export default function Home() {
     setAiExplanation(null);
     const nextCompleted = Array.from(new Set([...completedChallenges, "py-paren"]));
     setCompletedChallenges(nextCompleted);
-    try { window.localStorage.setItem("codemend-completed-challenges", JSON.stringify(nextCompleted)); } catch { /* optional */ }
+    try { window.localStorage.setItem("debugtest-completed-challenges", JSON.stringify(nextCompleted)); } catch { /* optional */ }
   };
 
   const resetCode = () => {
@@ -476,207 +476,131 @@ export default function Home() {
   });
   const dailyPassed = Math.min(3, history.filter((item) => item.status === "Passed" && dayKey(new Date(item.at)) === dayKey()).length);
   const recommendedIndex = challenges.findIndex((challenge) => !completedChallenges.includes(challenge.id));
+  const workflowStage = isRunning ? 2 : runState === "error" ? 3 : runState === "fixed" ? 5 : 1;
+  const workflowSteps = [
+    ["01", "Write", "Shape the idea"],
+    ["02", "Scan", "Inspect safely"],
+    ["03", "Diagnose", "Understand the cause"],
+    ["04", "Test", "Compare every case"],
+    ["05", "Resolve", "Prove the repair"],
+  ];
 
   return (
-    <div className="codemend-shell">
-      <div className="ambient-glow ambient-glow-one" />
-      <div className="ambient-glow ambient-glow-two" />
-      <header className="topbar">
-        <div className="topbar-inner">
+    <div className="debugtest-shell">
+      <div className="mesh mesh-one" />
+      <div className="mesh mesh-two" />
+      <header className="dt-header">
+        <div className="dt-header-inner">
           <AppMark />
-          <nav className={`topnav ${mobileNavOpen ? "topnav-open" : ""}`} aria-label="Primary navigation">
-            <a href="#workspace" className="nav-link active">Workspace</a>
-            <a href="#how-it-works" className="nav-link">How it works</a>
-            <a href="#practice" className="nav-link">Practice</a>
-            <a href="#about" className="nav-link">About</a>
+          <nav className={"dt-nav " + (mobileNavOpen ? "dt-nav-open" : "")} aria-label="Primary navigation">
+            <a href="#workspace">Workbench</a><a href="#workflow">Workflow</a><a href="#tests">Tests</a><a href="#practice">Practice</a>
           </nav>
-          <div className="topbar-actions">
-            <button className="text-button hide-mobile" type="button" onClick={() => setLearnerMode(!learnerMode)}>
-              <GraduationCap size={16} />
-              {learnerMode ? "Learner mode" : "Focus mode"}
-            </button>
-            <span className="session-stat hide-mobile"><Trophy size={15} /> Level {level} · {xp} XP</span>
-            <button className="mobile-menu-button" type="button" aria-label="Toggle navigation" onClick={() => setMobileNavOpen(!mobileNavOpen)}>
-              {mobileNavOpen ? <X size={20} /> : <Menu size={20} />}
-            </button>
+          <div className="dt-header-actions">
+            <button className="mode-button hide-mobile" type="button" onClick={() => setLearnerMode(!learnerMode)}><GraduationCap size={15} /> {learnerMode ? "Guided" : "Focus"}</button>
+            <span className="level-pill hide-mobile"><Trophy size={14} /> L{level} · {xp} XP</span>
+            <button className="menu-button" type="button" aria-label="Toggle navigation" onClick={() => setMobileNavOpen(!mobileNavOpen)}>{mobileNavOpen ? <X size={19} /> : <Menu size={19} />}</button>
           </div>
         </div>
       </header>
 
-      <main className="page-wrap" id="workspace">
-        <section className="hero-row">
-          <div>
-            <div className="eyebrow"><span className="eyebrow-dot" /> Your coding workspace</div>
-            <h1>Make mistakes.<br /><em>Understand them.</em></h1>
-            <p className="hero-copy">CodeMend helps you debug with intention — one clear explanation, useful hint, and small win at a time.</p>
-          </div>
-          <div className="hero-aside">
-            <div className="streak-card">
-              <div className="streak-icon"><Zap size={16} fill="currentColor" /></div>
-              <div><strong>{streak} day streak</strong><span>{streak ? "Practice again tomorrow" : "Run a check to begin"}</span></div>
-              <ArrowRight size={16} className="muted-arrow" />
+      <main className="dt-main" id="workspace">
+        <section className="dt-hero">
+          <div className="hero-content">
+            <div className="hero-label"><span /> Multi-language debugging workspace</div>
+            <h1>Debug the cause.<br /><em>Test the solution.</em></h1>
+            <p>DebugTest turns compiler noise into a clear learning path—inspect the issue, understand why it happened, and verify the repair with real test cases.</p>
+            <div className="hero-actions">
+              <button type="button" className="hero-primary" onClick={() => document.querySelector(".code-editor")?.scrollIntoView({ behavior: "smooth" })}><Terminal size={16} /> Open workbench</button>
+              <button type="button" className="hero-secondary" onClick={() => document.querySelector("#practice")?.scrollIntoView({ behavior: "smooth" })}><BookOpen size={16} /> Browse challenges</button>
             </div>
-            <div className="command-hint"><Command size={13} /> Press <kbd>Ctrl/⌘</kbd><kbd>Enter</kbd> to check</div>
+            <div className="hero-proof"><span><ShieldCheck size={14} /> Safe preview fallback</span><span>12 languages</span><span>24 challenges</span></div>
+          </div>
+          <div className={"scan-orbit " + (isRunning ? "scanning" : runState === "fixed" ? "resolved" : runState === "error" ? "detected" : "")} aria-hidden="true">
+            <div className="orbit-ring ring-a" /><div className="orbit-ring ring-b" />
+            <div className="orbit-core"><img src="/debugtest-mark.svg" alt="" /><strong>{isRunning ? "SCANNING" : runState === "fixed" ? "RESOLVED" : runState === "error" ? "ISSUE FOUND" : "READY"}</strong><span>{language} · {activeMeta.version}</span></div>
+            <i className="orbit-node node-one" /><i className="orbit-node node-two" /><i className="orbit-node node-three" />
           </div>
         </section>
 
-        <section className="workspace-grid">
-          <div className="editor-column">
-            <div className="panel editor-panel">
-              <div className="panel-toolbar">
-                <div className="file-tab"><span className="file-dot" style={{ background: activeMeta.tone }} /> main.{activeMeta.extension}</div>
-                <div className="toolbar-actions">
-                  <div className="language-select-wrap">
-                    <select value={language} onChange={(event) => changeLanguage(event.target.value as Language)} aria-label="Choose programming language">
-                      <option>Python</option><option>C</option><option>C++</option><option>Java</option><option>JavaScript</option><option>TypeScript</option><option>C#</option><option>Go</option><option>Rust</option><option>PHP</option><option>Kotlin</option><option>Ruby</option>
-                    </select>
-                    <ChevronDown size={14} />
-                  </div>
-                  <button className="icon-button" onClick={resetCode} type="button" aria-label="Reset code"><RotateCcw size={16} /></button>
-                  <button className={copied ? "icon-button copied" : "icon-button"} onClick={copyCode} type="button" aria-label={copied ? "Code copied" : "Copy code"} title={copied ? "Copied!" : "Copy code"}><Copy size={16} /></button>
-                  <button className="icon-button" onClick={downloadCode} type="button" aria-label="Download code" title="Download code"><Download size={16} /></button>
-                  <button className="icon-button" onClick={() => fileInputRef.current?.click()} type="button" aria-label="Import code file" title="Import code file"><Upload size={16} /></button>
-                  <input ref={fileInputRef} className="visually-hidden" type="file" accept=".py,.c,.cpp,.cc,.java,.js,.ts,.cs,.go,.rs,.php,.kt,.kts,.rb" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importCode(file); event.target.value = ""; }} />
-                  <button className="icon-button" onClick={() => void shareCode()} type="button" aria-label="Copy share link" title="Copy share link"><Share2 size={16} /></button>
-                  <button className="run-button" onClick={runCode} type="button" disabled={isRunning}>
-                    {isRunning ? <span className="spinner" /> : <Play size={14} fill="currentColor" />}
-                    {isRunning ? "Checking" : "Run code"}
-                  </button>
-                </div>
+        <section className="workflow-strip" id="workflow" aria-label="Debugging workflow">
+          {workflowSteps.map((step, index) => {
+            const stage = index + 1;
+            return <div className={"workflow-step " + (stage < workflowStage ? "done" : stage === workflowStage ? "active" : "")} key={step[1]}><span>{stage < workflowStage ? <Check size={13} /> : step[0]}</span><div><strong>{step[1]}</strong><small>{step[2]}</small></div></div>;
+          })}
+        </section>
+
+        <section className="workbench-grid">
+          <div className="code-editor glass-panel">
+            <div className="workbench-bar">
+              <div className="file-identity"><i style={{ background: activeMeta.tone }} /><span>main.{activeMeta.extension}</span><small>{codeLines} lines</small></div>
+              <div className="editor-actions">
+                <label className="language-picker"><select value={language} onChange={(event) => changeLanguage(event.target.value as Language)} aria-label="Choose programming language">{(Object.keys(languageMeta) as Language[]).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={13} /></label>
+                <button type="button" onClick={resetCode} aria-label="Reset code" title="Reset"><RotateCcw size={15} /></button>
+                <button type="button" onClick={copyCode} aria-label="Copy code" title="Copy"><Copy size={15} /></button>
+                <button type="button" onClick={downloadCode} aria-label="Download code" title="Download"><Download size={15} /></button>
+                <button type="button" onClick={() => fileInputRef.current?.click()} aria-label="Import code" title="Import"><Upload size={15} /></button>
+                <input ref={fileInputRef} className="visually-hidden" type="file" accept=".py,.c,.cpp,.cc,.java,.js,.ts,.cs,.go,.rs,.php,.kt,.kts,.rb" onChange={(event) => { const file = event.target.files?.[0]; if (file) void importCode(file); event.target.value = ""; }} />
+                <button type="button" onClick={() => void shareCode()} aria-label="Share code" title="Share"><Share2 size={15} /></button>
               </div>
-              <div className="editor-meta"><span><span className="live-dot" /> Secure runner ready · preview fallback enabled</span><span>{workspaceNotice || `${codeLines} lines · ${activeMeta.version}`}</span></div>
-              <div className="editor-body">
-                <CodeLines code={code} errorLine={runState === "error" ? result?.line : null} />
-                <textarea
-                  className="code-input"
-                  value={code}
-                  onChange={(event) => { setCode(event.target.value); setRunState("idle"); setShowAnswer(false); setWorkspaceNotice(""); }}
-                  onKeyDown={(event) => {
-                    if ((event.ctrlKey || event.metaKey) && event.key === "Enter") {
-                      event.preventDefault();
-                      runCode();
-                    }
-                  }}
-                  spellCheck={false}
-                  aria-label="Code editor"
-                />
-              </div>
-              <div className="editor-footer"><span>Spaces: 4</span><span>UTF-8</span><span>Ln {runState === "error" ? result?.line ?? 1 : codeLines}, Col 5</span></div>
             </div>
-
-            <div className="panel test-lab" aria-labelledby="test-lab-title">
-              <div className="test-lab-heading"><div><span className="card-eyebrow"><ShieldCheck size={13} /> Verification lab</span><h2 id="test-lab-title">Run against test cases</h2></div><span>{testCases.length}/6 cases</span></div>
-              <p className="test-lab-copy">Each case runs separately with its own input. Output must match exactly after trailing whitespace is ignored.</p>
-              <div className="test-case-list">
-                {testCases.map((test, index) => {
-                  const testResult = testResults?.tests.find((item) => item.id === test.id);
-                  return <div className="test-case" key={test.id}>
-                    <div className="test-case-top"><input value={test.name} maxLength={80} aria-label={`Name for test ${index + 1}`} onChange={(event) => updateTestCase(test.id, "name", event.target.value)} /><span className={testResult ? `test-status ${testResult.status}` : "test-status"}>{testResult?.status ?? "Not run"}</span>{testCases.length > 1 && <button type="button" aria-label={`Remove ${test.name}`} onClick={() => { setTestCases((current) => current.filter((item) => item.id !== test.id)); setTestResults(null); }}><Trash2 size={13} /></button>}</div>
-                    <div className="test-fields"><label>Standard input<textarea value={test.stdin} maxLength={4000} placeholder="Optional stdin" onChange={(event) => updateTestCase(test.id, "stdin", event.target.value)} /></label><label>Expected output<textarea value={test.expectedOutput} maxLength={20000} placeholder="Expected console output" onChange={(event) => updateTestCase(test.id, "expectedOutput", event.target.value)} /></label></div>
-                    {testResult && testResult.status !== "passed" && <div className="test-diff"><span>Actual output</span><pre>{testResult.actualOutput || testResult.stderr || "No output"}</pre></div>}
-                  </div>;
-                })}
-              </div>
-              <div className="test-lab-footer"><button type="button" disabled={testCases.length >= 6} onClick={() => setTestCases((current) => [...current, createTestCase(current.length + 1)])}><Plus size={14} /> Add test case</button>{testResults && <strong className={testResults.passed === testResults.total ? "all-passed" : "tests-failed"}>{testResults.passed}/{testResults.total} passed · {testResults.isDemo ? "preview" : "secure runner"}</strong>}</div>
-            </div>
-
-            <div className={`result-panel ${runState === "error" ? "result-error" : runState === "fixed" ? "result-success" : "result-idle"}`}>
-              <div className="result-heading">
-                <div className="result-title-wrap">
-                  <span className={`result-status-icon ${runState === "error" ? "error-icon" : runState === "fixed" ? "success-icon" : "idle-icon"}`}>
-                    {runState === "error" ? <X size={15} /> : runState === "fixed" ? <Check size={15} /> : <Terminal size={15} />}
-                  </span>
-                  <div><span className="result-kicker">Run result</span><h2>{statusLabel}</h2></div>
-                </div>
-                <span className="result-time">{runState === "idle" ? "Waiting for your first check" : `${result?.executionTimeMs ?? 1}ms · ${result?.isDemo ? "guided mode" : "live browser run"}`}</span>
-              </div>
-
-              {runState === "idle" && (
-                <div className="empty-result"><span>Output and explanations will appear here.</span><button type="button" onClick={runCode}>Run the starter code <ArrowRight size={14} /></button></div>
-              )}
-
-              {runState === "fixed" && (
-                <div className="success-result"><div className="output-label">{result?.isDemo ? "Expected output" : "Console output"}</div><pre>{result?.stdout || "Check completed successfully."}</pre><div className="success-note"><Check size={14} /> {result?.isDemo ? "Your code passed this guided check. Nice debugging." : "JavaScript finished in the isolated browser runner."}</div></div>
-              )}
-
-              {runState === "error" && (
-                <div className="error-result">
-                  <div className="error-banner"><span className="error-code">{result?.errorType ?? "CodeError"}</span><span>{result?.line ? `Line ${result.line} · ` : ""}{result?.stderr || "Review the highlighted issue"}</span><button type="button" aria-label="Dismiss error" onClick={() => setRunState("idle")}><X size={15} /></button></div>
-                  <div className="explanation-grid">
-                    <div className="explanation-main">
-                      <div className="section-label"><Sparkles size={14} /> What happened?</div>
-                      <p>{aiExplanation?.whatHappened ?? <>Your <code>print</code> call opens a parenthesis, but the line ends before it closes. Python stops here because it cannot tell where the function call ends.</>}</p>
-                      {learnerMode && <div className="analogy-card"><div className="analogy-icon"><Lightbulb size={16} /></div><div><strong>Think of it like a sentence</strong><span>You opened a quotation mark but never added the closing one. The reader is still waiting for the thought to finish.</span></div></div>}
-                    </div>
-                  <div className="hint-card"><div className="section-label"><CircleHelp size={14} /> Hint</div><p>{aiExplanation?.hint ?? <>Read the highlighted line and compare its opening and closing symbols.</>}</p><div className="hint-line"><span>{String(result?.line ?? 1).padStart(2, "0")}</span><code>{code.split("\n")[(result?.line ?? 1) - 1] || "Start with a small example"}<span className="cursor-mark">▌</span></code></div></div>
-                  </div>
-                  <div className="answer-row">
-                    <div><strong>Ready to see a suggested fix?</strong><span>Try to solve it yourself first — or reveal the answer when you’re ready.</span></div>
-                    <div className="answer-actions"><button className="ghost-button" type="button" onClick={() => setShowAnswer(false)}>Try myself</button>{language === "Python" && activeChallenge !== null && challenges[activeChallenge]?.id === "py-paren" && (result?.errorType === "SyntaxError" || result?.errorType === "DelimiterError") && <button className="primary-button" type="button" onClick={() => setShowAnswer(true)}><WandSparkles size={15} /> Show answer</button>}</div>
-                  </div>
-                  {showAnswer && language === "Python" && <div className="suggested-fix"><div className="fix-heading"><span><Check size={14} /> Suggested fix</span><span className="fix-tag">1 line changed</span></div><div className="diff-line removed"><span>−</span><code>print(message</code></div><div className="diff-line added"><span>+</span><code>print(message)</code></div><button className="apply-button" type="button" onClick={applyFix}>Apply fix and check <ArrowRight size={15} /></button></div>}
-                </div>
-              )}
-            </div>
+            <div className="editor-signal"><span><i /> {language === "JavaScript" ? "Isolated browser execution" : "Guided preview · secure runner ready"}</span><span>{workspaceNotice || (copied ? "Code copied" : activeMeta.version)}</span></div>
+            <div className="editor-canvas">{isRunning && <div className="scan-line" />}<CodeLines code={code} errorLine={runState === "error" ? result?.line : null} /><textarea className="code-input" value={code} onChange={(event) => { setCode(event.target.value); setRunState("idle"); setShowAnswer(false); setWorkspaceNotice(""); setTestResults(null); }} onKeyDown={(event) => { if ((event.ctrlKey || event.metaKey) && event.key === "Enter") { event.preventDefault(); runCode(); } }} spellCheck={false} aria-label="Code editor" /></div>
+            <div className="editor-bottom"><span>UTF-8</span><span>Spaces: 4</span><span>Ln {result?.line ?? codeLines}</span><button type="button" className="run-main" onClick={runCode} disabled={isRunning}>{isRunning ? <span className="spinner" /> : <Play size={14} fill="currentColor" />}{isRunning ? "Scanning…" : "Run diagnosis"}<kbd>⌘↵</kbd></button></div>
           </div>
 
-          <aside className="sidebar-column">
-            <div className="panel daily-goal-card">
-              <div className="daily-goal-top"><div><span className="card-eyebrow">Daily goal</span><h2>{dailyPassed === 3 ? "Goal complete" : `${3 - dailyPassed} checks to go`}</h2></div><span>{dailyPassed}/3</span></div>
-              <div className="daily-segments" aria-label={`${dailyPassed} of 3 daily checks complete`}>{[0, 1, 2].map((step) => <i key={step} className={step < dailyPassed ? "complete" : ""} />)}</div>
-              {recommendedIndex >= 0 ? <button type="button" onClick={() => loadChallenge(recommendedIndex)}><span><strong>Recommended next</strong><small>{challenges[recommendedIndex].language} · {challenges[recommendedIndex].title}</small></span><ArrowRight size={15} /></button> : <p>Every challenge is complete. Keep your streak alive with a fresh editor run.</p>}
-            </div>
-
-            <div className="panel progress-card">
-              <div className="progress-card-top"><div className="progress-level"><span><Target size={14} /> Learner level</span><strong>Level {level}</strong></div><span className="xp-badge">{xp} XP</span></div>
-              <div className="xp-track" aria-label={`${levelProgress}% progress to next level`}><span style={{ width: `${levelProgress}%` }} /></div>
-              <div className="progress-stats"><span><strong>{completedChallenges.length}</strong> / {challenges.length} challenges</span><span>{100 - levelProgress} XP to level {level + 1}</span></div>
-            </div>
-
-            <div className="panel proficiency-card">
-              <div className="proficiency-heading"><span className="card-eyebrow">Language proficiency</span><strong>12 language paths</strong></div>
-              <div className="proficiency-list">
-                {proficiency.map((item) => <button type="button" className="proficiency-row" key={item.language} onClick={() => { setChallengeFilter(item.language); document.querySelector("#practice")?.scrollIntoView({ behavior: "smooth" }); }}><span className="proficiency-name"><i style={{ background: item.tone }} />{item.language}</span><span className="proficiency-track"><i style={{ width: `${item.percent}%`, background: item.tone }} /></span><span className={`proficiency-label ${item.percent === 100 ? "complete" : ""}`}>{item.label}</span></button>)}
-              </div>
-            </div>
-
-            <div className="panel journey-card">
-              <div className="card-topline"><div><span className="card-eyebrow">Debug journey</span><h2>Learn as you fix</h2></div><span className="step-count">{runState === "fixed" ? "4 / 4" : runState === "error" ? "2 / 4" : "1 / 4"}</span></div>
-              <div className="journey-list">
-                <div className={`journey-step complete`}><span className="journey-marker"><Check size={13} /></span><div><strong>Write your code</strong><span>Start with a question</span></div></div>
-                <div className={`journey-step ${runState !== "idle" ? "complete" : "current"}`}><span className="journey-marker">{runState !== "idle" ? <Check size={13} /> : "2"}</span><div><strong>Spot the pattern</strong><span>See what went wrong</span></div></div>
-                <div className={`journey-step ${runState === "fixed" ? "complete" : runState === "error" ? "current" : ""}`}><span className="journey-marker">{runState === "fixed" ? <Check size={13} /> : "3"}</span><div><strong>Choose your fix</strong><span>Hints before answers</span></div></div>
-                <div className={`journey-step ${runState === "fixed" ? "current" : ""}`}><span className="journey-marker">{runState === "fixed" ? <Check size={13} /> : "4"}</span><div><strong>Run with confidence</strong><span>Prove it works</span></div></div>
-              </div>
-              <div className="journey-progress"><span style={{ width: `${runState === "fixed" ? 100 : runState === "error" ? 50 : 25}%` }} /></div>
-              <p className="journey-caption">CodeMend never skips the learning part.</p>
-            </div>
-
-            <div className="panel challenge-card" id="practice">
-              <div className="challenge-heading"><div className="practice-icon"><BookOpen size={17} /></div><div><span className="card-eyebrow">Practice lab</span><h3>Choose a bug to mend</h3></div></div>
-              <div className="challenge-filter"><select value={challengeFilter} onChange={(event) => setChallengeFilter(event.target.value as "All" | Language)} aria-label="Filter challenges by language"><option>All</option><option>Python</option><option>C</option><option>C++</option><option>Java</option><option>JavaScript</option><option>TypeScript</option><option>C#</option><option>Go</option><option>Rust</option><option>PHP</option><option>Kotlin</option><option>Ruby</option></select><span>{visibleChallenges.length} challenges</span></div>
-              <div className="challenge-list">
-                {visibleChallenges.map((challenge) => {
-                  const index = challenges.findIndex((item) => item.id === challenge.id);
-                  const isComplete = completedChallenges.includes(challenge.id);
-                  return <button className={activeChallenge === index ? "challenge-item active" : "challenge-item"} type="button" key={challenge.id} onClick={() => loadChallenge(index)}><span><strong>{isComplete && <Check size={11} />} {challenge.title}</strong><small>{challenge.language} · {challenge.minutes} min · {challenge.level} · {challenge.xp} XP</small></span><ArrowRight size={14} /></button>;
-                })}
-              </div>
-            </div>
-
-            <div className="panel history-card">
-              <div className="history-heading"><span><History size={14} /> Recent activity</span>{history.length > 0 && <button type="button" onClick={() => { setHistory([]); window.localStorage.removeItem("codemend-history"); }}>Clear</button>}</div>
-              {history.length === 0 ? <p>Your checks will be saved here on this device.</p> : history.slice(0, 4).map((item, index) => <div className="history-row" key={`${item.at}-${index}`}><span>{item.language}</span><span className={item.status === "Passed" ? "passed" : "review"}>{item.status}</span></div>)}
-            </div>
-
-            <div className="mini-note" id="how-it-works"><div className="mini-note-icon"><Compass size={15} /></div><div><strong>Good debugging is a skill.</strong><span>Build yours by understanding every error, not hiding it.</span></div></div>
+          <aside className={"diagnostic-panel glass-panel state-" + runState}>
+            <div className="diagnostic-head"><div><span className="section-tag">DIAGNOSTIC CONSOLE</span><h2>{statusLabel}</h2></div><span className={"status-orb " + (isRunning ? "running" : runState)}>{isRunning ? <span className="spinner" /> : runState === "fixed" ? <Check size={17} /> : runState === "error" ? <X size={17} /> : <Terminal size={17} />}</span></div>
+            {isRunning ? <div className="diagnostic-loading"><div className="pulse-bars"><i /><i /><i /><i /><i /></div><strong>Inspecting structure and test contract</strong><span>Validating input · tracing syntax · preparing cases</span></div> :
+            runState === "idle" ? <div className="diagnostic-empty"><Sparkles size={24} /><strong>Your diagnosis will appear here</strong><p>Run the code to receive a plain-language explanation, a focused hint, and test evidence.</p><button type="button" onClick={runCode}>Start diagnosis <ArrowRight size={14} /></button></div> :
+            runState === "fixed" ? <div className="diagnostic-success"><div className="success-ring"><Check size={28} /></div><span className="section-tag">OUTPUT VERIFIED</span><pre>{result?.stdout || "Check completed successfully."}</pre><p>{result?.explanation || "The current check passed."}</p><div className="success-meta"><span>{result?.executionTimeMs ?? 1}ms</span><span>{testResults ? testResults.passed + "/" + testResults.total + " tests" : "Structure passed"}</span></div></div> :
+            <div className="diagnostic-error">
+              <div className="error-summary"><span>{result?.errorType ?? "CodeError"}</span><strong>{result?.line ? "Line " + result.line : "Review required"}</strong></div>
+              <p className="stderr">{result?.stderr || "The checker found an issue that needs attention."}</p>
+              <div className="diagnosis-block"><span><Sparkles size={13} /> What happened</span><p>{aiExplanation?.whatHappened || result?.explanation}</p></div>
+              <div className="hint-block"><span><Lightbulb size={13} /> Your next move</span><p>{aiExplanation?.hint || result?.hint}</p></div>
+              {learnerMode && <div className="concept-chip"><CircleHelp size={13} /> Concept: {aiExplanation?.concept || result?.errorType || "Debugging"}</div>}
+              {language === "Python" && activeChallenge !== null && challenges[activeChallenge]?.id === "py-paren" && <div className="fix-actions"><button type="button" onClick={() => setShowAnswer(!showAnswer)}><WandSparkles size={14} /> {showAnswer ? "Hide repair" : "Reveal repair"}</button>{showAnswer && <button className="apply-repair" type="button" onClick={applyFix}>Apply fix <ArrowRight size={14} /></button>}</div>}
+              {showAnswer && <div className="mini-diff"><div><span>−</span><code>print(message</code></div><div><span>+</span><code>print(message)</code></div></div>}
+            </div>}
           </aside>
         </section>
 
-        <footer className="page-footer" id="about">
-          <div className="footer-brand"><AppMark /><span className="version-badge">v2.0</span></div>
-          <div className="footer-about"><strong>Built by Md. Iftee Raiyan</strong><span>A learning-first debugger for understanding errors and verifying fixes.</span></div>
-          <div className="footer-links"><a href="#workspace">Workspace</a><a href="#how-it-works">How it works</a><a href="https://github.com/MdIfteeRaiyan/CodeLens" target="_blank" rel="noreferrer" aria-label="Open the CodeMend source code on GitHub"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div>
+        <section className="test-studio glass-panel" id="tests">
+          <div className="studio-heading"><div><span className="section-tag"><ShieldCheck size={13} /> TEST STUDIO</span><h2>Prove the fix, case by case.</h2><p>Give each case its own input and expected output. DebugTest compares results after ignoring trailing whitespace.</p></div><span className="case-counter">{testCases.length}/6 cases</span></div>
+          <div className="test-grid">
+            {testCases.map((test, index) => {
+              const testResult = testResults?.tests.find((item) => item.id === test.id);
+              return <article className={"test-card " + (testResult?.status || "")} key={test.id}>
+                <div className="test-card-top"><span className="case-number">{String(index + 1).padStart(2, "0")}</span><input value={test.name} maxLength={80} aria-label={"Name for test " + (index + 1)} onChange={(event) => updateTestCase(test.id, "name", event.target.value)} /><span className="case-result">{testResult?.status || "ready"}</span>{testCases.length > 1 && <button type="button" aria-label={"Remove " + test.name} onClick={() => { setTestCases((current) => current.filter((item) => item.id !== test.id)); setTestResults(null); }}><Trash2 size={13} /></button>}</div>
+                <div className="case-fields"><label>Input<textarea value={test.stdin} maxLength={4000} placeholder="Optional stdin" onChange={(event) => updateTestCase(test.id, "stdin", event.target.value)} /></label><label>Expected<textarea value={test.expectedOutput} maxLength={20000} placeholder="Expected output" onChange={(event) => updateTestCase(test.id, "expectedOutput", event.target.value)} /></label></div>
+                {testResult && testResult.status !== "passed" && <div className="actual-output"><span>Actual</span><pre>{testResult.actualOutput || testResult.stderr || "No output"}</pre></div>}
+              </article>;
+            })}
+            {testCases.length < 6 && <button className="add-case" type="button" onClick={() => setTestCases((current) => [...current, createTestCase(current.length + 1)])}><Plus size={19} /><strong>Add another case</strong><span>Test edge conditions and alternate inputs</span></button>}
+          </div>
+          <div className="studio-footer"><span>{testResults ? testResults.message : "Cases run with your next diagnosis."}</span><button type="button" onClick={runCode} disabled={isRunning}><Play size={13} /> Run all cases</button></div>
+        </section>
+
+        <section className="insight-grid" id="practice">
+          <article className="insight-card progress-insight"><div className="insight-title"><span><Target size={14} /> PROGRESS</span><strong>Level {level}</strong></div><div className="level-display"><b>{xp}</b><span>XP earned</span></div><div className="level-track"><i style={{ width: levelProgress + "%" }} /></div><div className="stat-pair"><span><b>{completedChallenges.length}</b> solved</span><span><b>{100 - levelProgress}</b> XP to L{level + 1}</span></div></article>
+          <article className="insight-card daily-insight"><div className="insight-title"><span><Zap size={14} /> DAILY LOOP</span><strong>{streak} day streak</strong></div><div className="goal-orbs">{[0, 1, 2].map((item) => <i key={item} className={item < dailyPassed ? "complete" : ""}>{item < dailyPassed ? <Check size={13} /> : item + 1}</i>)}</div><p>{dailyPassed === 3 ? "Daily target complete. Strong work." : (3 - dailyPassed) + " successful checks left today."}</p>{recommendedIndex >= 0 && <button type="button" onClick={() => loadChallenge(recommendedIndex)}>Continue with {challenges[recommendedIndex].language} <ArrowRight size={14} /></button>}</article>
+          <article className="insight-card history-insight"><div className="insight-title"><span><History size={14} /> RECENT RUNS</span>{history.length > 0 && <button type="button" onClick={() => { setHistory([]); window.localStorage.removeItem("debugtest-history"); }}>Clear</button>}</div><div className="compact-history">{history.length === 0 ? <p>No runs yet. Your last six diagnoses stay on this device.</p> : history.slice(0, 4).map((item, index) => <div key={item.at + index}><span>{item.language}</span><i className={item.status === "Passed" ? "pass" : "review"}>{item.status}</i></div>)}</div></article>
+        </section>
+
+        <section className="practice-lab">
+          <div className="practice-heading"><div><span className="section-tag"><BookOpen size={13} /> PRACTICE PATHS</span><h2>Train the debugging reflex.</h2></div><label><select value={challengeFilter} onChange={(event) => setChallengeFilter(event.target.value as "All" | Language)} aria-label="Filter challenges"><option>All</option>{(Object.keys(languageMeta) as Language[]).map((item) => <option key={item}>{item}</option>)}</select><ChevronDown size={13} /></label></div>
+          <div className="challenge-grid">{visibleChallenges.map((challenge) => { const index = challenges.findIndex((item) => item.id === challenge.id); const complete = completedChallenges.includes(challenge.id); return <button className={"challenge-tile " + (activeChallenge === index ? "active" : "")} type="button" key={challenge.id} onClick={() => loadChallenge(index)}><span className="challenge-language" style={{ color: languageMeta[challenge.language].tone }}>{challenge.language}</span><strong>{complete && <Check size={13} />} {challenge.title}</strong><small>{challenge.level} · {challenge.minutes} min · +{challenge.xp} XP</small><ArrowRight size={15} /></button>; })}</div>
+        </section>
+
+        <section className="language-map">
+          <div><span className="section-tag">LANGUAGE MAP</span><h2>One workflow. Twelve languages.</h2></div>
+          <div className="language-chips">{proficiency.map((item) => <button type="button" key={item.language} onClick={() => { setChallengeFilter(item.language); document.querySelector("#practice")?.scrollIntoView({ behavior: "smooth" }); }}><i style={{ background: item.tone }} /><span>{item.language}</span><small>{item.label}</small></button>)}</div>
+        </section>
+
+        <footer className="dt-footer" id="about">
+          <div className="footer-brand"><AppMark /><span className="version-badge">v3.0</span></div>
+          <div className="footer-about"><strong>Built by Md. Iftee Raiyan</strong><span>A test-driven workspace for learning how software fails—and how to repair it.</span></div>
+          <div className="footer-links"><a href="#workspace">Workbench</a><a href="#tests">Tests</a><a href="https://github.com/MdIfteeRaiyan/DebugTest" target="_blank" rel="noreferrer"><Github size={14} /> GitHub <ExternalLink size={11} /></a></div>
         </footer>
       </main>
     </div>

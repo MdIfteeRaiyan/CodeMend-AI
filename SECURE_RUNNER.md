@@ -1,6 +1,6 @@
 # Secure runner setup
 
-CodeMend v2.0 never compiles untrusted code inside the Vercel function. The browser sends a validated request to `/api/execute`; that server-side adapter forwards one test at a time to an isolated execution provider.
+DebugTest v3.0 never compiles untrusted code inside the Vercel function. The browser sends a validated request to `/api/execute`; that server-side adapter forwards one test at a time to an isolated execution provider.
 
 ## Required Vercel environment variables
 
@@ -30,7 +30,7 @@ The runner must return the `ExecutionResult` shape defined in `shared/execution.
 - a language allowlist and pinned compiler images;
 - automatic deletion of source and artifacts after every run.
 
-CodeMend enforces request sizes, a maximum of six test cases, an eight-second upstream timeout, a per-instance request limit, hidden runner credentials, and `no-store` responses. Production infrastructure should also use a durable rate limiter and abuse monitoring at the runner or gateway.
+DebugTest enforces request sizes, a maximum of six test cases, an eight-second upstream timeout, a per-instance request limit, hidden runner credentials, and `no-store` responses. Production infrastructure should also use a durable rate limiter and abuse monitoring at the runner or gateway.
 
 ## Safe preview behavior
 

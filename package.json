@@ -1,6 +1,13 @@
 {
-  "name": "codemend",
-  "version": "2.0.0",
+  "name": "debugtest",
+  "version": "3.0.0",
+  "description": "A test-driven debugging workspace for learning why code fails, repairing it, and proving the fix.",
+  "author": "Md. Iftee Raiyan",
+  "homepage": "https://debugtest-ai-debugger.vercel.app/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/MdIfteeRaiyan/DebugTest.git"
+  },
   "type": "module",
   "license": "MIT",
   "scripts": {

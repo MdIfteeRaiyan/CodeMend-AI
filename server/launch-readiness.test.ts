@@ -10,10 +10,11 @@ describe("public launch readiness contract", () => {
   it("labels secure execution and preserves the guided fallback", () => {
     const homePage = readProjectFile("client/src/pages/Home.tsx");
 
-    expect(homePage).toContain("Secure runner ready · preview fallback enabled");
-    expect(homePage).toContain("Run against test cases");
-    expect(homePage).toContain("Apply fix and check");
-    expect(homePage).toContain("Show answer");
+    expect(homePage).toContain("Guided preview · secure runner ready");
+    expect(homePage).toContain("Prove the fix, case by case.");
+    expect(homePage).toContain("Run diagnosis");
+    expect(homePage).toContain("Reveal repair");
+    expect(homePage).toContain("Debug the cause.");
   });
 
   it("keeps untrusted compilation outside the Vercel application", () => {

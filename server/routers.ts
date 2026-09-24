@@ -71,7 +71,7 @@ async function createDebugExplanation(
         {
           role: "system",
           content:
-            "You are CodeMend, a patient debugging tutor. Explain errors simply for a student. Give a hint before a fix. Never invent compiler output, never encourage unsafe code, and return only the requested JSON.",
+            "You are DebugTest, a patient debugging tutor. Explain errors simply for a student. Give a hint before a fix. Never invent compiler output, never encourage unsafe code, and return only the requested JSON.",
         },
         {
           role: "user",
@@ -88,7 +88,7 @@ async function createDebugExplanation(
       response_format: {
         type: "json_schema",
         json_schema: {
-          name: "codemend_debug_explanation",
+          name: "debugtest_debug_explanation",
           strict: true,
           schema: {
             type: "object",

@@ -14,7 +14,7 @@ function unavailableResult(input: ExecutionRequest): ExecutionResult {
     stderr: "The secure execution service is not configured.",
     line: null,
     errorType: "RunnerUnavailable",
-    explanation: "CodeMend is in preview mode until a sandboxed execution provider is connected.",
+    explanation: "DebugTest is in preview mode until a sandboxed execution provider is connected.",
     hint: "Use the guided demo or connect a runner before enabling live execution.",
     executionTimeMs: 0,
     isDemo: false,
